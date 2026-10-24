@@ -1,0 +1,94 @@
+rules_version = '2';
+
+// Reglas de seguridad de Espacio Cultiva.
+// - La psicóloga (documento en /admins/{uid}) ve y administra todo.
+// - Cada apoderado ve solo la familia a la que lo invitaron.
+// - Nadie entra a una familia sin un código de invitación vigente.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isAdmin() {
+      return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    function isMember(fid) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/miembros/$(request.auth.uid))
+        && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.familiaId == fid;
+    }
+    function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
+
+    // Cuenta de la psicóloga: se crea a mano desde la consola de Firebase.
+    match /admins/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+      allow list, write: if false;
+    }
+
+    // Códigos de invitación. Se pueden consultar sabiendo el código exacto
+    // (son aleatorios de 8 caracteres); listar y crear es solo de la psicóloga.
+    match /invitaciones/{code} {
+      allow get: if true;
+      allow list, create, update, delete: if isAdmin();
+    }
+
+    // Vínculo cuenta -> familia. Se crea una sola vez, con un código vigente.
+    match /miembros/{uid} {
+      allow get: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow list: if isAdmin();
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['familiaId', 'codigo', 'creado'])
+        && get(/databases/$(database)/documents/invitaciones/$(request.resource.data.codigo)).data.familiaId == request.resource.data.familiaId
+        && get(/databases/$(database)/documents/invitaciones/$(request.resource.data.codigo)).data.activa == true
+        && request.time.toMillis() < get(/databases/$(database)/documents/invitaciones/$(request.resource.data.codigo)).data.expira;
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    match /familias/{fid} {
+      allow read: if isAdmin() || isMember(fid);
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (isMember(fid) && changed().hasOnly(['ultimaActividad', 'actividadTexto']));
+
+      // Datos de cada apoderado: solo los edita su dueño.
+      match /adultos/{uid} {
+        allow read: if isAdmin() || isMember(fid);
+        allow create, update: if isMember(fid) && request.auth.uid == uid;
+        allow delete: if isAdmin();
+      }
+
+      // Fichas de los niños: las completan los apoderados; la psicóloga también puede corregir.
+      match /hijos/{hid} {
+        allow read: if isAdmin() || isMember(fid);
+        allow create, update: if isAdmin() || isMember(fid);
+        allow delete: if isAdmin();
+      }
+
+      // Registros de conducta de los apoderados.
+      match /conductas/{id} {
+        allow read: if isAdmin() || isMember(fid);
+        allow create: if isMember(fid) && request.resource.data.autorUid == request.auth.uid;
+        allow update: if (isMember(fid) && request.resource.data.autorUid == resource.data.autorUid)
+          || (isAdmin() && changed().hasOnly(['vistaPsico']));
+        allow delete: if isAdmin() || (isMember(fid) && resource.data.autorUid == request.auth.uid);
+      }
+
+      // Preguntas para la sesión. Los apoderados editan el texto; la psicóloga responde.
+      match /preguntas/{id} {
+        allow read: if isAdmin() || isMember(fid);
+        allow create: if isMember(fid) && request.resource.data.autorUid == request.auth.uid
+          && request.resource.data.estado == 'pendiente';
+        allow update: if isAdmin()
+          || (isMember(fid) && changed().hasOnly(['texto', 'hijoId', 'importante', 'editado']));
+        allow delete: if isAdmin() || (isMember(fid) && resource.data.autorUid == request.auth.uid);
+      }
+
+      // Reportes de sesión: los escribe solo la psicóloga.
+      match /reportes/{id} {
+        allow read: if isAdmin() || isMember(fid);
+        allow write: if isAdmin();
+      }
+    }
+  }
+}

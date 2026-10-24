@@ -1,0 +1,1228 @@
+<!doctype html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Espacio Cultiva</title>
+<meta name="description" content="Acompañamiento a familias de Espacio Cultiva · Bienestar e infancia">
+<meta name="theme-color" content="#FFFBFA">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cultiva">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+@font-face{font-family:'Nunito';font-weight:400;font-display:swap;src:url(vendor/fonts/nunito-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Nunito';font-weight:600;font-display:swap;src:url(vendor/fonts/nunito-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Nunito';font-weight:700;font-display:swap;src:url(vendor/fonts/nunito-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Nunito';font-weight:800;font-display:swap;src:url(vendor/fonts/nunito-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Patrick Hand';font-weight:400;font-display:swap;src:url(vendor/fonts/patrick-hand-latin-400-normal.woff2) format('woff2')}
+
+:root{
+  --bg:#FFFBFA; --card:#FFFFFF; --ink:#4A3A35; --ink2:#7D6760; --ink3:#A8958F; --line:#F2E5E0;
+  --sal:#EF968E; --sal-d:#C35F52; --sal-l:#FDECE8;
+  --pea:#FFCA8C; --pea-d:#A8661C; --pea-l:#FFF3E3;
+  --tea:#B1DFDC; --tea-d:#2F7F7A; --tea-l:#E9F6F5;
+  --shadow:0 1px 2px rgba(120,80,70,.06),0 4px 14px rgba(120,80,70,.06);
+  --r:16px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#221C1A; --card:#2D2523; --ink:#F6EAE6; --ink2:#CDB9B2; --ink3:#9A8680; --line:#3E3431;
+    --sal:#EF968E; --sal-d:#F0A398; --sal-l:#43302C; --pea-d:#FFCF98; --pea-l:#40342A; --tea-d:#9BDAD5; --tea-l:#2A3A39;
+    --shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#221C1A; --card:#2D2523; --ink:#F6EAE6; --ink2:#CDB9B2; --ink3:#9A8680; --line:#3E3431;
+  --sal:#EF968E; --sal-d:#F0A398; --sal-l:#43302C; --pea-d:#FFCF98; --pea-l:#40342A; --tea-d:#9BDAD5; --tea-l:#2A3A39;
+  --shadow:0 1px 2px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font-family:'Nunito',system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+button,input,textarea,select{font:inherit;color:inherit}
+h1,h2,h3,.hand{font-family:'Patrick Hand','Nunito',cursive;font-weight:400;letter-spacing:.01em}
+h1{font-size:30px;margin:0 0 4px;line-height:1.15}
+h2{font-size:24px;margin:0 0 10px;line-height:1.2}
+h3{font-size:20px;margin:0 0 6px}
+p{margin:0 0 10px}
+svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+.wrap{max-width:640px;margin:0 auto;padding:0 16px 110px}
+.cultiva-top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:calc(env(safe-area-inset-top) + 8px) 16px 8px}
+.cultiva-top-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:10px;min-height:44px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand svg{width:40px;height:34px;flex:none}
+.brand-n{font-family:'Patrick Hand',cursive;font-size:23px;color:var(--sal-d);line-height:1}
+.brand-l{font-size:11px;letter-spacing:.18em;color:var(--tea-d);text-transform:lowercase}
+.top-back{display:flex;align-items:center;gap:4px;border:0;background:none;padding:8px 6px 8px 0;color:var(--sal-d);font-weight:700;cursor:pointer}
+.top-title{font-family:'Patrick Hand',cursive;font-size:22px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp{flex:1}
+
+.demo-bar{background:var(--pea-l);color:var(--pea-d);font-size:13px;padding:6px 16px;text-align:center;font-weight:600}
+.demo-bar button{border:0;background:none;color:inherit;text-decoration:underline;font-weight:700;cursor:pointer;padding:0 4px}
+.off-chip{font-size:12px;background:var(--pea-l);color:var(--pea-d);border-radius:99px;padding:4px 10px;font-weight:700;white-space:nowrap}
+
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:16px;margin:0 0 12px;border:1px solid var(--line)}
+.card.tap{cursor:pointer}
+.card.tap:active{transform:scale(.99)}
+.muted{color:var(--ink2)}
+.small{font-size:13px}
+.tiny{font-size:12px;color:var(--ink3)}
+.row{display:flex;align-items:center;gap:10px}
+.row.top{align-items:flex-start}
+.wrapf{flex-wrap:wrap}
+.stack>*+*{margin-top:10px}
+.sec{margin:22px 0 10px;display:flex;align-items:baseline;gap:8px}
+.sec h2{margin:0}
+.sec .sp{flex:1}
+.link{border:0;background:none;color:var(--sal-d);font-weight:700;cursor:pointer;padding:4px 0;font-size:14px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:14px;padding:13px 18px;font-weight:800;font-size:16px;cursor:pointer;background:var(--sal-d);color:#fff;min-height:48px;text-decoration:none}
+.btn:active{filter:brightness(.95)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.full{width:100%}
+.btn.sec2{background:var(--card);color:var(--sal-d);border:1.5px solid var(--sal)}
+.btn.ghost{background:transparent;color:var(--ink2);border:1.5px solid var(--line)}
+.btn.teal{background:var(--tea-d);color:#fff}
+.btn.sm{min-height:38px;padding:8px 14px;font-size:14px;border-radius:12px}
+:root[data-theme="dark"] .btn:not(.sec2):not(.ghost){color:#2A1F1C}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn:not(.sec2):not(.ghost){color:#2A1F1C}}
+.danger{color:#B4443A!important;border-color:#E9B7B0!important}
+
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 4px}
+.act{border:0;border-radius:18px;padding:14px;text-align:left;cursor:pointer;min-height:96px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;font-weight:800;font-size:16px;line-height:1.2}
+.act .hint{font-weight:600;font-size:12.5px;opacity:.85}
+.act.a1{background:var(--sal-l);color:var(--sal-d);grid-column:1/-1;min-height:84px}
+.act.a2{background:var(--tea-l);color:var(--tea-d)}
+.act.a3{background:var(--pea-l);color:var(--pea-d)}
+.act .ico{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--card)}
+
+.kid{display:flex;align-items:center;gap:12px}
+.av{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-family:'Patrick Hand',cursive;font-size:22px;flex:none;color:#4A3A35}
+.av.c0{background:var(--tea)}.av.c1{background:var(--pea)}.av.c2{background:var(--sal)}
+.av.sm{width:30px;height:30px;font-size:16px}
+.kid-n{font-weight:800;font-size:17px}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);background:var(--card);border-radius:99px;padding:8px 13px;font-size:14px;font-weight:700;cursor:pointer;color:var(--ink2);line-height:1.2}
+.chip.on{background:var(--sal-l);border-color:var(--sal);color:var(--sal-d)}
+.chip.on.t{background:var(--tea-l);border-color:var(--tea);color:var(--tea-d)}
+.chips.scroll{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;margin:0 -16px;padding-left:16px;padding-right:16px;scrollbar-width:none}
+.chips.scroll::-webkit-scrollbar{display:none}
+.chips.scroll .chip{flex:none}
+
+.tag{display:inline-block;font-size:12px;font-weight:800;border-radius:99px;padding:3px 9px;background:var(--line);color:var(--ink2);white-space:nowrap}
+.tag.s{background:var(--sal-l);color:var(--sal-d)}
+.tag.t{background:var(--tea-l);color:var(--tea-d)}
+.tag.p{background:var(--pea-l);color:var(--pea-d)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--sal-d);display:inline-block;flex:none}
+
+label.f{display:block;font-weight:800;font-size:14px;margin:16px 0 6px}
+label.f .opt{font-weight:600;color:var(--ink3)}
+.help{font-size:13px;color:var(--ink2);margin:-2px 0 8px}
+input.in,textarea.in,select.in{width:100%;border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:12px 13px;font-size:16px;outline:none}
+input.in:focus,textarea.in:focus,select.in:focus{border-color:var(--sal)}
+textarea.in{min-height:84px;resize:vertical}
+.abc{border-left:4px solid var(--tea);padding:2px 0 2px 12px;margin:12px 0}
+.abc.b{border-color:var(--pea)}.abc.c{border-color:var(--sal)}
+.abc-l{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+.intens{display:flex;gap:8px}
+.intens button{flex:1;border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:10px 0;font-weight:800;cursor:pointer;font-size:17px}
+.intens button.on{background:var(--sal);border-color:var(--sal);color:#3b2622}
+.lvl{display:inline-flex;gap:3px;vertical-align:middle}
+.lvl i{width:8px;height:8px;border-radius:50%;background:var(--line);display:block}
+.lvl i.on{background:var(--sal)}
+
+.box{border-radius:14px;padding:12px 14px;margin:10px 0}
+.box.t{background:var(--tea-l)}.box.p{background:var(--pea-l)}.box.s{background:var(--sal-l)}
+.empty{text-align:center;color:var(--ink2);padding:28px 10px}
+.empty svg{width:70px;height:60px;margin-bottom:6px}
+
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--card);border-top:1px solid var(--line);padding:6px 6px calc(env(safe-area-inset-bottom) + 6px);display:flex;justify-content:center}
+.nav-in{display:flex;width:100%;max-width:640px}
+.nav button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;font-weight:700;color:var(--ink3);padding:6px 0;cursor:pointer;position:relative}
+.nav button.on{color:var(--sal-d)}
+.nav .bdg{position:absolute;top:2px;left:calc(50% + 6px);background:var(--sal-d);color:#fff;border-radius:99px;font-size:10px;min-width:17px;height:17px;display:grid;place-items:center;padding:0 4px}
+
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 84px);transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:14px;font-weight:700;z-index:100;max-width:90vw;box-shadow:var(--shadow);font-size:14.5px}
+.modal-bg{position:fixed;inset:0;background:rgba(40,25,20,.4);z-index:90;display:flex;align-items:flex-end;justify-content:center}
+.modal{background:var(--bg);width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:20px 18px calc(env(safe-area-inset-bottom) + 18px);max-height:90vh;overflow:auto}
+@media (min-width:700px){.modal-bg{align-items:center}.modal{border-radius:22px}}
+.code{font-family:ui-monospace,Menlo,monospace;font-size:30px;font-weight:800;letter-spacing:.14em;text-align:center;background:var(--tea-l);color:var(--tea-d);border-radius:14px;padding:14px}
+
+/* Pantalla de ingreso */
+.auth{max-width:420px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 28px) 18px 40px}
+.auth-logo{text-align:center;margin-bottom:18px}
+.auth-logo svg{width:120px;height:104px}
+.auth-logo .brand-n{font-size:38px}
+.auth-logo .brand-l{font-size:13px;margin-top:4px}
+.tabs2{display:flex;background:var(--line);border-radius:14px;padding:4px;margin:0 0 6px}
+.tabs2 button{flex:1;border:0;background:none;border-radius:11px;padding:10px;font-weight:800;color:var(--ink2);cursor:pointer}
+.tabs2 button.on{background:var(--card);color:var(--sal-d);box-shadow:var(--shadow)}
+.err{color:#B4443A;font-weight:700;font-size:14px;margin-top:10px}
+
+/* Pasos */
+.steps{display:flex;gap:6px;margin:16px 0}
+.steps i{flex:1;height:6px;border-radius:9px;background:var(--line)}
+.steps i.on{background:var(--sal)}
+.consent{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;font-size:14.5px;max-height:46vh;overflow:auto}
+.consent ul{padding-left:20px;margin:8px 0}
+.consent li{margin:6px 0}
+.check{display:flex;gap:10px;align-items:flex-start;margin:14px 0;font-weight:700}
+.check input{width:22px;height:22px;margin:1px 0 0;accent-color:var(--sal-d);flex:none}
+
+/* Panel psicóloga */
+.panel{display:block}
+.p-side{padding:12px 16px}
+.p-main{padding:0 16px 60px}
+.fam-it{display:flex;gap:10px;align-items:center;padding:12px;border-radius:14px;cursor:pointer;border:1px solid transparent}
+.fam-it:hover{background:var(--card)}
+.fam-it.on{background:var(--card);border-color:var(--line);box-shadow:var(--shadow)}
+.fam-it .n{font-weight:800}
+.ptabs{display:flex;gap:6px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none;position:sticky;top:61px;background:var(--bg);z-index:10}
+.ptabs::-webkit-scrollbar{display:none}
+.ptabs button{flex:none;border:0;background:var(--line);border-radius:99px;padding:9px 15px;font-weight:800;color:var(--ink2);cursor:pointer;font-size:14px}
+.ptabs button.on{background:var(--sal-d);color:#fff}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.stat b{display:block;font-size:24px;font-family:'Patrick Hand',cursive;font-weight:400;line-height:1.1}
+.stat span{font-size:12px;color:var(--ink2);font-weight:700}
+.bars{display:flex;align-items:flex-end;gap:6px;height:90px;padding-top:6px}
+.bars .wk{flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;height:100%;align-items:stretch}
+.bars .b1{background:var(--sal);border-radius:4px 4px 0 0}
+.bars .b2{background:var(--tea);border-radius:4px 4px 0 0}
+.bars-l{display:flex;gap:6px;font-size:10.5px;color:var(--ink3);margin-top:4px}
+.bars-l span{flex:1;text-align:center}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--ink2);font-weight:700;margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+dl.ficha{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14.5px}
+dl.ficha dt{color:var(--ink3);font-weight:700}
+dl.ficha dd{margin:0;white-space:pre-wrap}
+@media (min-width:900px){
+  .panel{display:grid;grid-template-columns:320px 1fr;min-height:calc(100vh - 61px)}
+  .p-side{border-right:1px solid var(--line);position:sticky;top:61px;height:calc(100vh - 61px);overflow:auto}
+  .p-main{padding:16px 28px 60px;max-width:900px}
+  .p-only-m{display:none!important}
+  .cultiva-top-in.wide{max-width:none}
+}
+@media (max-width:899px){.p-hide-m{display:none!important}}
+.pre{white-space:pre-wrap}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="config.js"></script>
+<script>
+'use strict';
+/* =========================================================
+   Espacio Cultiva · app para familias y panel de la psicóloga
+   ========================================================= */
+const CFG = Object.assign({psicologa:'Ps. María Valentina Olivier',nombrePila:'María Valentina',centro:'Espacio Cultiva',lema:'Bienestar e infancia',diasInvitacion:30}, window.CULTIVA_CONFIG||{});
+const DEMO = !CFG.firebase;
+const APP_URL = location.origin + location.pathname.replace(/index\.html$/,'');
+
+const RAINBOW = '<svg viewBox="0 0 100 86" aria-hidden="true"><g fill="none" stroke-linecap="round" stroke-width="11"><path d="M12 78V44a38 38 0 0 1 76 0v34" stroke="#B1DFDC"/><path d="M25 78V44a25 25 0 0 1 50 0v34" stroke="#FFCA8C"/><path d="M38 78V44a12 12 0 0 1 24 0v34" stroke="#EF968E"/></g></svg>';
+const I = n => '<svg class="i" viewBox="0 0 24 24">' + ({
+  home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
+  lista:'<path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>',
+  preg:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M9.6 9.6a2.4 2.4 0 1 1 3.4 2.2c-.6.3-1 .8-1 1.4v.3M12 16.4h.01"/>',
+  rep:'<path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
+  fam:'<circle cx="9" cy="8" r="3.2"/><circle cx="17" cy="10" r="2.4"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M14.5 20c0-2.2 1.4-4.5 4-4.5 1.6 0 3 1 3.5 2.5"/>',
+  back:'<path d="M15 5l-7 7 7 7"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  alerta:'<path d="M12 3l9.5 17h-19z"/><path d="M12 10v4M12 17.3h.01"/>',
+  sol:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  copiar:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+  wsp:'<path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/>',
+  reloj:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  salir:'<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3"/>',
+  lapiz:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
+  buscar:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>'
+}[n]||'') + '</svg>';
+
+/* ---------- Catálogos (para que María Valentina los revise) ---------- */
+const CAT_DIF = ['Rabieta o pataleta','Llanto intenso','Agresión (pegar, morder, empujar)','Gritos o insultos','No hace caso / se opone','Miedo o ansiedad','Le cuesta dormir','Comida','Colegio o tareas','Pantallas','Peleas con hermanos','Se aísla o está muy callado/a','Otra'];
+const CAT_POS = ['Se calmó solo/a','Logró algo nuevo','Compartió o ayudó','Dijo lo que sentía','Hizo caso a la primera','Buen día en el colegio','Durmió bien','Jugó tranquilo/a','Otra'];
+const LUGARES = ['Casa','Colegio o jardín','Auto o traslado','Casa de familiares','Lugar público','Otro'];
+const DURACION = ['Menos de 5 min','5 a 15 min','15 a 30 min','Más de 30 min'];
+const INTENS = ['','Leve','Algo fuerte','Fuerte','Muy fuerte','Desbordado/a'];
+const PARENTESCO = ['Madre','Padre','Tutor/a legal','Abuela/o','Otro'];
+
+/* ---------- Utilidades ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nl = s => esc(s).replace(/\n/g,'<br>');
+const DIA = 864e5;
+const fFecha = ms => new Date(ms).toLocaleDateString('es-CL',{weekday:'short',day:'numeric',month:'short'});
+const fFechaL = ms => new Date(ms).toLocaleDateString('es-CL',{weekday:'long',day:'numeric',month:'long'});
+const fHora = ms => new Date(ms).toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+const fCorta = ms => new Date(ms).toLocaleDateString('es-CL',{day:'numeric',month:'short'});
+function cuando(ms){
+  const d0 = new Date(); d0.setHours(0,0,0,0);
+  const diff = Math.floor((d0.getTime() - new Date(ms).setHours(0,0,0,0)) / DIA);
+  if (diff === 0) return 'Hoy ' + fHora(ms);
+  if (diff === 1) return 'Ayer ' + fHora(ms);
+  if (diff > 1 && diff < 7) return fFecha(ms) + ' ' + fHora(ms);
+  return fFecha(ms);
+}
+function edad(fn){
+  if (!fn) return '';
+  const b = new Date(fn + 'T12:00:00'), n = new Date();
+  let m = (n.getFullYear()-b.getFullYear())*12 + n.getMonth()-b.getMonth(); if (n.getDate() < b.getDate()) m--;
+  if (m < 0) return '';
+  if (m < 24) return m + (m===1?' mes':' meses');
+  const a = Math.floor(m/12); return a + ' años';
+}
+const toLocal = ms => { const d = new Date(ms); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,16); };
+const fromLocal = s => s ? new Date(s).getTime() : null;
+const hoyISO = () => toLocal(Date.now()).slice(0,10);
+function clean(o){ const r = {}; for (const k in o) if (o[k] !== undefined) r[k] = (o[k] && typeof o[k]==='object' && !Array.isArray(o[k])) ? clean(o[k]) : o[k]; return r; }
+function genCode(){ const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; const v=new Uint32Array(8); crypto.getRandomValues(v); return Array.from(v,x=>a[x%a.length]).join(''); }
+const primerNombre = s => String(s||'').trim().split(/\s+/)[0] || '';
+const ls = { get(k,d){ try{ const v = localStorage.getItem(k); return v==null?d:JSON.parse(v);}catch(e){return d} }, set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }, del(k){ try{localStorage.removeItem(k)}catch(e){} } };
+
+function errMsg(e){
+  const c = (e && (e.code||e.message)) || '';
+  if (/invalid-credential|wrong-password|user-not-found|invalid-login/.test(c)) return 'Correo o contraseña incorrectos.';
+  if (/email-already-in-use/.test(c)) return 'Ese correo ya tiene cuenta. Usa "Ingresar".';
+  if (/weak-password/.test(c)) return 'La contraseña debe tener al menos 6 caracteres.';
+  if (/invalid-email/.test(c)) return 'Revisa el correo, parece que tiene un error.';
+  if (/too-many-requests/.test(c)) return 'Demasiados intentos. Espera unos minutos.';
+  if (/network|unavailable|offline/.test(c)) return 'Sin conexión. Inténtalo cuando tengas internet.';
+  if (/permission/.test(c)) return 'No tienes permiso para hacer esto.';
+  return 'Algo falló. Inténtalo de nuevo.';
+}
+
+/* =========================================================
+   Capa de datos: Firebase (real) o Demo (en el navegador)
+   ========================================================= */
+async function firebaseBackend(){
+  const F = await import('./vendor/firebase.js');
+  const app = F.initializeApp(CFG.firebase);
+  const auth = F.initializeAuth(app, {persistence:[F.indexedDBLocalPersistence, F.browserLocalPersistence]});
+  let db;
+  try { db = F.initializeFirestore(app, {localCache: F.persistentLocalCache({tabManager: F.persistentMultipleTabManager()})}); }
+  catch(e){ db = F.initializeFirestore(app, {}); }
+  const D = p => F.doc(db, p);
+  const snapDocs = s => s.docs.map(x => Object.assign({id:x.id, _pend:x.metadata.hasPendingWrites}, x.data()));
+  return {
+    onAuth: cb => F.onAuthStateChanged(auth, u => cb(u ? {uid:u.uid, email:u.email} : null)),
+    signIn: (e,p) => F.signInWithEmailAndPassword(auth, e, p),
+    signUp: (e,p) => F.createUserWithEmailAndPassword(auth, e, p),
+    signOut: () => F.signOut(auth),
+    reset: e => F.sendPasswordResetEmail(auth, e),
+    get: async p => { const s = await F.getDoc(D(p)); return s.exists() ? s.data() : null; },
+    set: (p,d,merge) => F.setDoc(D(p), clean(d), merge ? {merge:true} : {}),
+    update: (p,d) => F.updateDoc(D(p), clean(d)),
+    del: p => F.deleteDoc(D(p)),
+    batch: ops => { const b = F.writeBatch(db); ops.forEach(o => o.op==='set' ? b.set(D(o.path), clean(o.data), o.merge?{merge:true}:{}) : o.op==='update' ? b.update(D(o.path), clean(o.data)) : b.delete(D(o.path))); return b.commit(); },
+    listen: (col, cb, onErr) => F.onSnapshot(F.collection(db, col), {includeMetadataChanges:true}, s => cb(snapDocs(s)), onErr),
+    listenDoc: (p, cb, onErr) => F.onSnapshot(D(p), s => cb(s.exists() ? Object.assign({id:s.id}, s.data()) : null), onErr),
+    newId: () => F.doc(F.collection(db, '_')).id
+  };
+}
+
+function demoBackend(){
+  const KEY = 'cultiva-demo-v1';
+  const load = () => { const j = ls.get(KEY, null); if (j && j.docs) return j; const s = demoSeed(); ls.set(KEY, s); return s; };
+  let db = load();
+  const L = new Set();
+  const notify = () => L.forEach(l => l());
+  const save = () => { ls.set(KEY, db); setTimeout(notify, 0); };
+  window.addEventListener('storage', e => { if (e.key === KEY) { db = load(); notify(); } });
+  const colDocs = col => { const n = col.split('/').length + 1; return Object.keys(db.docs).filter(p => p.startsWith(col + '/') && p.split('/').length === n).map(p => Object.assign({id:p.split('/').pop()}, JSON.parse(JSON.stringify(db.docs[p])))); };
+  const newId = () => 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+  let authCb = null;
+  const curUser = () => { const uid = sessionStorage.getItem('cultiva-demo-uid'); if (!uid) return null; const email = Object.keys(db.users).find(e => db.users[e].uid === uid); return {uid, email}; };
+  const fire = () => authCb && authCb(curUser());
+  const fail = code => { const e = new Error(code); e.code = code; throw e; };
+  const apply = o => {
+    if (o.op === 'set') db.docs[o.path] = o.merge ? Object.assign({}, db.docs[o.path], clean(o.data)) : clean(o.data);
+    else if (o.op === 'update') { if (!db.docs[o.path]) fail('not-found'); Object.assign(db.docs[o.path], clean(o.data)); }
+    else delete db.docs[o.path];
+  };
+  return {
+    demo: true,
+    reiniciar(){ ls.del(KEY); sessionStorage.removeItem('cultiva-demo-uid'); location.reload(); },
+    entrarComo(uid){ sessionStorage.setItem('cultiva-demo-uid', uid); fire(); },
+    onAuth(cb){ authCb = cb; setTimeout(fire, 0); return () => {}; },
+    async signIn(e,p){ const u = db.users[String(e).trim().toLowerCase()]; if (!u || u.pass !== p) fail('auth/invalid-credential'); sessionStorage.setItem('cultiva-demo-uid', u.uid); fire(); },
+    async signUp(e,p){ e = String(e).trim().toLowerCase(); if (!/^\S+@\S+\.\S+$/.test(e)) fail('auth/invalid-email'); if (db.users[e]) fail('auth/email-already-in-use'); if (String(p).length < 6) fail('auth/weak-password'); const uid = 'u' + newId(); db.users[e] = {uid, pass:p}; save(); sessionStorage.setItem('cultiva-demo-uid', uid); fire(); },
+    async signOut(){ sessionStorage.removeItem('cultiva-demo-uid'); fire(); },
+    async reset(){},
+    async get(p){ return db.docs[p] ? JSON.parse(JSON.stringify(db.docs[p])) : null; },
+    async set(p,d,merge){ apply({op:'set',path:p,data:d,merge}); save(); },
+    async update(p,d){ apply({op:'update',path:p,data:d}); save(); },
+    async del(p){ apply({op:'delete',path:p}); save(); },
+    async batch(ops){ ops.forEach(apply); save(); },
+    listen(col, cb){ const l = () => cb(colDocs(col)); L.add(l); setTimeout(l, 0); return () => L.delete(l); },
+    listenDoc(p, cb){ const l = () => cb(db.docs[p] ? Object.assign({id:p.split('/').pop()}, JSON.parse(JSON.stringify(db.docs[p]))) : null); L.add(l); setTimeout(l, 0); return () => L.delete(l); },
+    newId
+  };
+}
+
+function demoSeed(){
+  const now = Date.now(), d = n => now - n*DIA, at = (n,h,m) => { const x = new Date(d(n)); x.setHours(h,m||0,0,0); return x.getTime(); };
+  const prox = (() => { const x = new Date(now + 4*DIA); x.setHours(17,0,0,0); return x.getTime(); })();
+  const F = 'familias/fam-gonzalez';
+  const docs = {
+    'admins/demo-admin': {nombre: CFG.psicologa},
+    'miembros/demo-carolina': {familiaId:'fam-gonzalez', codigo:'GONZ4LEZ', creado:d(30)},
+    'miembros/demo-rodrigo': {familiaId:'fam-gonzalez', codigo:'GONZ4LEZ', creado:d(29)},
+    'invitaciones/GONZ4LEZ': {familiaId:'fam-gonzalez', nombreFamilia:'Familia González Rojas', activa:true, expira:d(-10), creada:d(30)},
+    'invitaciones/DEMO2026': {familiaId:'fam-munoz', nombreFamilia:'Familia Muñoz', activa:true, expira:d(-30), creada:d(1)},
+    [F]: {nombre:'Familia González Rojas', creada:d(30), codigo:'GONZ4LEZ', codigoExpira:d(-10), ultimaActividad:at(0,9,10), actividadTexto:'Carolina hizo una pregunta'},
+    'familias/fam-munoz': {nombre:'Familia Muñoz', creada:d(1), codigo:'DEMO2026', codigoExpira:d(-30), ultimaActividad:d(1), actividadTexto:'Familia creada'},
+    [F+'/adultos/demo-carolina']: {nombre:'Carolina', apellidos:'Rojas Pérez', parentesco:'Madre', profesion:'Profesora de educación básica', trabajo:'Colegio en La Serena, jornada completa', telefono:'+56 9 1234 5678', correo:'carolina@demo.cl', viveCon:'Sí', contacto:'WhatsApp', consentimiento:d(30), actualizado:d(30)},
+    [F+'/adultos/demo-rodrigo']: {nombre:'Rodrigo', apellidos:'González Díaz', parentesco:'Padre', profesion:'Ingeniero en minas', trabajo:'Turnos 7x7 en faena', telefono:'+56 9 8765 4321', correo:'rodrigo@demo.cl', viveCon:'Sí', contacto:'WhatsApp', notas:'Cuando estoy en turno respondo en la noche.', consentimiento:d(29), actualizado:d(29)},
+    [F+'/hijos/h-tomas']: {nombre:'Tomás', apellidos:'González Rojas', fechaNac:'2018-05-14', curso:'3° básico', colegio:'Colegio Los Pinos', viveCon:'Mamá, papá y su hermana Emilia', hermanos:'Emilia (5)', motivo:'Le cuesta mucho perder en juegos y cuando hay que apagar la tablet. Tiene rabietas fuertes, a veces tira cosas.', salud:'', gustos:'Legos, dinosaurios, andar en bici. Lo calma que le hagan cariño en la espalda.', creado:d(30), orden:1},
+    [F+'/hijos/h-emilia']: {nombre:'Emilia', apellidos:'González Rojas', fechaNac:'2021-02-03', curso:'Kínder', colegio:'Colegio Los Pinos', viveCon:'Mamá, papá y su hermano Tomás', hermanos:'Tomás (8)', motivo:'Miedo a dormir sola, se pasa a nuestra cama casi todas las noches.', salud:'Alergia a la penicilina', gustos:'Dibujar, cantar, los gatos.', creado:d(30), orden:2},
+    [F+'/conductas/c1']: {hijoId:'h-tomas', tipo:'dificil', categorias:['Rabieta o pataleta','Pantallas'], intensidad:4, duracion:'15 a 30 min', lugar:'Casa', fecha:at(6,19,30), antes:'Le avisé que quedaban 5 minutos de tablet y después se la pedí.', descripcion:'Gritó, tiró un cojín y se encerró en su pieza llorando.', reaccion:'Le dije con calma que entendía que estaba enojado y lo dejé un rato. Después fui a verlo.', resultado:'Se calmó solo como a los 20 min y bajó a comer.', autorUid:'demo-carolina', autorNombre:'Carolina', creado:at(6,20,15)},
+    [F+'/conductas/c2']: {hijoId:'h-tomas', tipo:'positiva', categorias:['Se calmó solo/a'], fecha:at(4,18,0), descripcion:'Perdió jugando UNO con la Emilia y aunque se enojó, respiró y dijo "otra vez".', reaccion:'Lo felicitamos harto y le dimos un abrazo.', autorUid:'demo-rodrigo', autorNombre:'Rodrigo', creado:at(4,18,20)},
+    [F+'/conductas/c3']: {hijoId:'h-emilia', tipo:'dificil', categorias:['Le cuesta dormir','Miedo o ansiedad'], intensidad:3, duracion:'Más de 30 min', lugar:'Casa', fecha:at(3,22,40), antes:'La acostamos a las 21:30, todo normal.', descripcion:'Se despertó llorando, dijo que había un monstruo en el clóset.', reaccion:'La llevé a nuestra cama.', resultado:'Durmió con nosotros.', autorUid:'demo-carolina', autorNombre:'Carolina', creado:at(2,7,30)},
+    [F+'/conductas/c4']: {hijoId:'h-tomas', tipo:'dificil', categorias:['Colegio o tareas'], intensidad:2, fecha:at(1,17,0), descripcion:'No quería hacer la tarea de matemáticas, dijo que era tonto.', autorUid:'demo-carolina', autorNombre:'Carolina', creado:at(1,17,20)},
+    [F+'/conductas/c5']: {hijoId:'h-tomas', tipo:'dificil', categorias:['Peleas con hermanos'], intensidad:3, duracion:'5 a 15 min', lugar:'Auto o traslado', fecha:at(12,8,0), antes:'Íbamos atrasados al colegio.', descripcion:'Le pegó a la Emilia en el auto porque ella le tocó la mochila.', reaccion:'Paré el auto y los separé.', resultado:'Llegó enojado al colegio.', autorUid:'demo-rodrigo', autorNombre:'Rodrigo', creado:at(12,9,0)},
+    [F+'/preguntas/p1']: {hijoId:'h-tomas', texto:'¿Está bien que le quitemos la tablet por toda la semana cuando hace una rabieta, o es mejor otra cosa?', importante:true, estado:'pendiente', autorUid:'demo-carolina', autorNombre:'Carolina', creado:at(0,9,10)},
+    [F+'/preguntas/p2']: {hijoId:'h-emilia', texto:'¿La dejamos pasarse a nuestra cama o la devolvemos a la suya cada vez?', estado:'pendiente', autorUid:'demo-rodrigo', autorNombre:'Rodrigo', creado:at(3,23,0)},
+    [F+'/preguntas/p3']: {hijoId:'', texto:'¿Es bueno que el papá venga a alguna sesión cuando no está de turno?', estado:'respondida', respuesta:'¡Sí, me encantaría! Coordinemos para la semana que esté en casa.', respondida:d(9), autorUid:'demo-rodrigo', autorNombre:'Rodrigo', creado:d(11)},
+    [F+'/reportes/r1']: {hijoId:'h-tomas', fechaSesion:at(10,17,0), trabajamos:'Jugamos a reconocer emociones con tarjetas y conversamos sobre qué le pasa en el cuerpo cuando se enoja ("se me pone caliente la cara").', observe:'Tomás estuvo muy conectado y participativo. Le cuesta todavía tolerar perder en el juego, pero logró detenerse cuando se lo pedí y retomar.', casa:'Avisar los cambios de actividad con anticipación (5 minutos antes) y usar un reloj visual para la tablet.\nCuando logre calmarse, reconocerlo con palabras: "Vi que te enojaste y lograste calmarte".', proximaSesion:prox, enviado:d(9), autorNombre:CFG.psicologa}
+  };
+  return {users:{'carolina@demo.cl':{uid:'demo-carolina',pass:'demo123'},'rodrigo@demo.cl':{uid:'demo-rodrigo',pass:'demo123'},'mariavalentina@demo.cl':{uid:'demo-admin',pass:'demo123'}}, docs};
+}
+
+/* =========================================================
+   Estado
+   ========================================================= */
+let api = null;
+const S = {
+  loading:true, user:null, role:null,         // role: 'padre' | 'admin' | 'sinfamilia'
+  authTab:'login', authErr:'', authBusy:false, joinFam:null,
+  view:'inicio', p:{}, form:{}, modal:null, ob:1,
+  fid:null, fam:null, adultos:[], hijos:[], conductas:[], preguntas:[], reportes:[], got:{},
+  filtroHijo:'todos', pregTab:'pendientes',
+  familias:[], pfid:null, ptab:'preparar', phijo:null, buscar:'',
+  online:navigator.onLine
+};
+let subs = [], psubs = [], pendingRender = false, deferredPrompt = null;
+const unsubAll = arr => { arr.forEach(u => { try{u()}catch(e){} }); arr.length = 0; };
+
+function toast(msg, ms){
+  let t = $('#toast'); if (t) t.remove();
+  t = document.createElement('div'); t.id = 'toast'; t.className = 'toast'; t.textContent = msg; document.body.appendChild(t);
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.remove(), ms || 2600);
+}
+// Escritura sin bloquear: con Firebase queda en cola si no hay señal.
+function w(promise, okMsg){ if (okMsg) toast(okMsg); Promise.resolve(promise).catch(e => { console.error(e); toast(errMsg(e), 4000); }); }
+
+const me = () => S.adultos.find(a => a.id === S.user?.uid);
+const miNombre = () => (me() && me().nombre) || (S.user?.email||'').split('@')[0];
+const hijo = id => S.hijos.find(h => h.id === id);
+const hijosOrd = () => S.hijos.slice().sort((a,b) => (a.orden||0)-(b.orden||0) || (a.creado||0)-(b.creado||0));
+const hIdx = id => Math.max(0, hijosOrd().findIndex(h => h.id === id)) % 3;
+const av = (h, sm) => `<div class="av c${hIdx(h?.id)}${sm?' sm':''}">${esc((h?.nombre||'?')[0])}</div>`;
+const porCompletar = c => c.tipo === 'dificil' && !(c.antes && c.descripcion && c.reaccion);
+const leidos = () => ls.get('cultiva-leidos', []);
+const noLeidos = () => S.reportes.filter(r => !leidos().includes(r.id));
+
+/* =========================================================
+   Arranque y sesión
+   ========================================================= */
+async function start(){
+  applyTheme();
+  render(true);
+  try { api = DEMO ? demoBackend() : await firebaseBackend(); }
+  catch(e){ console.error(e); $('#app').innerHTML = '<div class="auth"><div class="auth-logo">'+RAINBOW+'</div><p class="err">No se pudo cargar la app. Revisa tu conexión y vuelve a abrirla.</p></div>'; return; }
+  api.onAuth(afterAuth);
+}
+
+async function afterAuth(user){
+  unsubAll(subs); unsubAll(psubs);
+  S.user = user; S.role = null; S.fid = null; S.got = {}; S.fam = null;
+  S.adultos = []; S.hijos = []; S.conductas = []; S.preguntas = []; S.reportes = []; S.familias = [];
+  if (!user){ S.loading = false; render(true); return; }
+  S.loading = true; render(true);
+  try {
+    if (await api.get('admins/' + user.uid)) { S.role = 'admin'; S.loading = false; startPanel(); return; }
+    let m = await api.get('miembros/' + user.uid);
+    const pend = sessionStorage.getItem('cultiva-codigo');
+    if (!m && pend){
+      const inv = await api.get('invitaciones/' + pend);
+      if (inv && inv.activa && Date.now() < inv.expira){
+        m = {familiaId:inv.familiaId, codigo:pend, creado:Date.now()};
+        await api.set('miembros/' + user.uid, m);
+      }
+      sessionStorage.removeItem('cultiva-codigo');
+    }
+    if (!m){ S.role = 'sinfamilia'; S.loading = false; render(true); return; }
+    S.role = 'padre'; S.fid = m.familiaId; startFamily();
+  } catch(e){
+    console.error(e); S.loading = false; S.role = 'sinfamilia'; S.authErr = errMsg(e); render(true);
+  }
+}
+
+function startFamily(){
+  const F = 'familias/' + S.fid;
+  const done = k => { S.got[k] = true; if (['fam','adultos','hijos','conductas','preguntas','reportes'].every(x => S.got[x])) S.loading = false; render(); };
+  const onErr = e => { console.error(e); toast(errMsg(e), 4000); };
+  subs.push(api.listenDoc(F, d => { S.fam = d; done('fam'); }, onErr));
+  subs.push(api.listen(F+'/adultos', d => { S.adultos = d; done('adultos'); }, onErr));
+  subs.push(api.listen(F+'/hijos', d => { S.hijos = d; done('hijos'); }, onErr));
+  subs.push(api.listen(F+'/conductas', d => { S.conductas = d.sort((a,b) => b.fecha-a.fecha); done('conductas'); }, onErr));
+  subs.push(api.listen(F+'/preguntas', d => { S.preguntas = d.sort((a,b) => b.creado-a.creado); done('preguntas'); }, onErr));
+  subs.push(api.listen(F+'/reportes', d => { S.reportes = d.sort((a,b) => b.fechaSesion-a.fechaSesion); done('reportes'); }, onErr));
+}
+function marcarActividad(texto){
+  if (!S.fid) return;
+  w(api.update('familias/' + S.fid, {ultimaActividad: Date.now(), actividadTexto: texto}));
+}
+
+/* =========================================================
+   Render
+   ========================================================= */
+function isTyping(){ const a = document.activeElement; return a && $('#app').contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && a.type !== 'checkbox'; }
+function render(force){
+  if (!force && isTyping()){ pendingRender = true; return; }
+  pendingRender = false;
+  let h;
+  if (S.loading || !api && !S.user) h = viewLoading();
+  else if (!S.user) h = viewAuth();
+  else if (S.role === 'sinfamilia') h = viewSinFamilia();
+  else if (S.role === 'admin') h = viewPanel();
+  else if (S.role === 'padre') h = needsOnboarding() ? viewOnboarding() : viewParent();
+  else h = viewLoading();
+  $('#app').innerHTML = (DEMO && api ? demoBar() : '') + h + (S.modal ? viewModal() : '');
+}
+document.addEventListener('focusout', () => setTimeout(() => { if (pendingRender && !isTyping()) render(); }, 350));
+
+function demoBar(){ return `<div class="demo-bar">Modo demostración: los datos quedan solo en este navegador. <button data-a="demoReset">Reiniciar demo</button>${S.user?'<button data-a="salir">Cambiar usuario</button>':''}</div>`; }
+function viewLoading(){ return `<div class="auth" style="text-align:center;padding-top:30vh"><div class="auth-logo">${RAINBOW}</div><p class="muted">Cargando…</p></div>`; }
+function topBar(inner, wide){ return `<header class="cultiva-top"><div class="cultiva-top-in${wide?' wide':''}">${inner}</div></header>`; }
+function brand(){ return `<div class="brand">${RAINBOW}<div><div class="brand-n">${esc(CFG.centro)}</div><div class="brand-l">${esc(CFG.lema)}</div></div></div>`; }
+function offChip(){ return S.online ? '' : '<span class="off-chip">Sin señal · se envía después</span>'; }
+function backBar(title, to){ return topBar(`<button class="top-back" data-a="back" data-v="${esc(to||'')}">${I('back')}</button><div class="top-title">${esc(title)}</div>${offChip()}`); }
+
+/* ---------- Ingreso ---------- */
+function viewAuth(){
+  const t = S.authTab, f = S.form;
+  let body = '';
+  if (t === 'login') body = `
+    <label class="f">Correo</label><input class="in" type="email" autocomplete="email" inputmode="email" data-f="email" value="${esc(f.email)}">
+    <label class="f">Contraseña</label><input class="in" type="password" autocomplete="current-password" data-f="pass" value="${esc(f.pass)}">
+    <div style="margin-top:18px"><button class="btn full" data-a="login" ${S.authBusy?'disabled':''}>Ingresar</button></div>
+    <div style="text-align:center;margin-top:10px"><button class="link" data-a="olvide">Olvidé mi contraseña</button></div>`;
+  else if (!S.joinFam) body = `
+    <p class="muted small" style="margin-top:12px">${esc(CFG.nombrePila)} te entrega un código para entrar. Sirve para todos los adultos de la familia.</p>
+    <label class="f">Código de invitación</label><input class="in" autocapitalize="characters" autocomplete="off" data-f="codigo" value="${esc(f.codigo)}" style="text-transform:uppercase;letter-spacing:.12em;font-weight:800">
+    <div style="margin-top:18px"><button class="btn full" data-a="validarCodigo" ${S.authBusy?'disabled':''}>Continuar</button></div>`;
+  else body = `
+    <div class="box t" style="margin-top:14px"><b>${esc(S.joinFam.nombreFamilia)}</b><div class="small muted">Código ${esc(S.joinFam.codigo)} · <button class="link" data-a="cambiarCodigo">cambiar</button></div></div>
+    <p class="small muted">Crea tu cuenta. Con ella puedes entrar desde cualquier celular sin perder nada.</p>
+    <label class="f">Tu correo</label><input class="in" type="email" autocomplete="email" inputmode="email" data-f="email" value="${esc(f.email)}">
+    <label class="f">Crea una contraseña <span class="opt">(mínimo 6)</span></label><input class="in" type="password" autocomplete="new-password" data-f="pass" value="${esc(f.pass)}">
+    <label class="f">Repite la contraseña</label><input class="in" type="password" autocomplete="new-password" data-f="pass2" value="${esc(f.pass2)}">
+    <div style="margin-top:18px"><button class="btn full" data-a="registrar" ${S.authBusy?'disabled':''}>Crear cuenta</button></div>
+    <p class="tiny" style="margin-top:12px">¿Ya tienes cuenta con otro correo? Ingresa con ella y escribe el código cuando te lo pida.</p>`;
+  const demo = DEMO ? `<div class="card" style="margin-top:22px"><h3>Probar la demostración</h3><p class="small muted">Datos de ejemplo. Abre dos pestañas (familia y psicóloga) para ver cómo se sincroniza.</p>
+    <div class="stack"><button class="btn sec2 full" data-a="demoComo" data-v="demo-carolina">Entrar como apoderada (Carolina)</button>
+    <button class="btn sec2 full" data-a="demoComo" data-v="demo-admin">Entrar como ${esc(CFG.nombrePila)}</button>
+    <button class="btn ghost full" data-a="demoCodigo">Probar familia nueva con código DEMO2026</button></div></div>` : '';
+  return `<div class="auth"><div class="auth-logo">${RAINBOW}<div class="brand-n">${esc(CFG.centro)}</div><div class="brand-l">${esc(CFG.lema)}</div></div>
+    <div class="tabs2"><button class="${t==='login'?'on':''}" data-a="authTab" data-v="login">Ingresar</button><button class="${t==='codigo'?'on':''}" data-a="authTab" data-v="codigo">Tengo un código</button></div>
+    ${body}${S.authErr?`<div class="err">${esc(S.authErr)}</div>`:''}${demo}</div>`;
+}
+
+function viewSinFamilia(){
+  return topBar(brand()+'<div class="sp"></div><button class="top-back" data-a="salir">'+I('salir')+'</button>') + `<div class="wrap" style="padding-top:20px">
+    <h1>Hola</h1><p class="muted">Tu cuenta (${esc(S.user.email)}) todavía no está unida a una familia. Escribe el código que te dio ${esc(CFG.nombrePila)}.</p>
+    <label class="f">Código de invitación</label><input class="in" autocapitalize="characters" data-f="codigo" value="${esc(S.form.codigo)}" style="text-transform:uppercase;letter-spacing:.12em;font-weight:800">
+    <div style="margin-top:16px"><button class="btn full" data-a="unirConCodigo">Unirme a mi familia</button></div>
+    ${S.authErr?`<div class="err">${esc(S.authErr)}</div>`:''}</div>`;
+}
+
+/* ---------- Primera vez: consentimiento, datos del adulto, hijos ---------- */
+function needsOnboarding(){ const m = me(); return !m || !m.consentimiento || !m.nombre || S.hijos.length === 0 || S.ob === 'hijos'; }
+function viewOnboarding(){
+  const m = me();
+  let step = !m || !m.consentimiento ? 1 : !m.nombre ? 2 : 3;
+  const steps = `<div class="steps">${[1,2,3].map(n => `<i class="${n<=step?'on':''}"></i>`).join('')}</div>`;
+  let body = '';
+  if (step === 1) body = `<h1>Bienvenidos a ${esc(CFG.centro)}</h1>
+    <p class="muted">Antes de empezar, lean esto con calma.</p>
+    <div class="consent">${consentHTML()}</div>
+    <label class="check"><input type="checkbox" data-f="acepto" ${S.form.acepto?'checked':''}> <span>Leí y acepto el uso de la app en estas condiciones.</span></label>
+    <button class="btn full" data-a="aceptar" ${S.form.acepto?'':'disabled'}>Continuar</button>`;
+  else if (step === 2) body = `<h1>Tus datos</h1><p class="muted">Así ${esc(CFG.nombrePila)} sabe quién escribe y cómo contactarte.</p>${adultoForm()}
+    <div style="margin-top:20px"><button class="btn full" data-a="guardarAdulto" data-v="ob">Guardar y seguir</button></div>`;
+  else {
+    const hs = hijosOrd();
+    body = `<h1>${hs.length ? 'Sus hijos' : 'Datos de su hijo o hija'}</h1>
+      ${hs.length ? `<p class="muted">Revisen que estén todos. Pueden editar los datos cuando quieran desde "Familia".</p>${hs.map(h => kidCard(h,'editarHijo')).join('')}
+        <button class="btn ghost full" data-a="nuevoHijo" style="margin:6px 0 16px">${I('plus')} Agregar otro hijo/a</button>
+        <button class="btn full" data-a="terminarOb">Listo, empezar</button>`
+      : `<p class="muted">Completen lo que sepan. Lo demás se puede agregar después.</p>${hijoForm()}
+        <div style="margin-top:20px"><button class="btn full" data-a="guardarHijo" data-v="ob">Guardar</button></div>`}`;
+  }
+  if (S.view === 'hijo-form' && step === 3) return parentSub();
+  return topBar(brand() + '<div class="sp"></div>' + offChip()) + `<div class="wrap">${steps}${body}</div>`;
+}
+function consentHTML(){
+  return `<p><b>Consentimiento para el uso de la app ${esc(CFG.centro)}</b></p>
+  <p>Esta app es una herramienta de apoyo al proceso terapéutico de su hijo o hija con ${esc(CFG.psicologa)}. Al usarla:</p>
+  <ul>
+    <li>Autorizan que la información que registren (datos de la familia, de sus hijos, conductas y preguntas) la vea la psicóloga tratante, con el único fin de acompañar el proceso.</li>
+    <li>La información se guarda en un servicio seguro en internet (Google Firebase). Solo pueden verla los adultos de su familia que la psicóloga invite y la psicóloga.</li>
+    <li>Los reportes de sesión son un resumen para la familia; no reemplazan la conversación en sesión.</li>
+    <li>La app no es un canal de urgencias y los mensajes no se responden de inmediato. Ante una urgencia llamen al 131 (SAMU) o vayan al servicio de urgencia más cercano.</li>
+    <li>Pueden pedir en cualquier momento que se corrijan o eliminen sus datos.</li>
+  </ul>
+  <p class="tiny">Texto de ejemplo, pendiente de revisión por ${esc(CFG.psicologa)}.</p>`;
+}
+
+/* ---------- Formularios de ficha ---------- */
+const inp = (f, lbl, o) => { o = o||{}; const v = S.form[f]; return `<label class="f">${lbl}${o.opt?' <span class="opt">(opcional)</span>':''}</label>${o.help?`<div class="help">${o.help}</div>`:''}${o.area ? `<textarea class="in" data-f="${f}" placeholder="${esc(o.ph||'')}">${esc(v)}</textarea>` : `<input class="in" type="${o.type||'text'}" ${o.im?`inputmode="${o.im}"`:''} ${o.ac?`autocomplete="${o.ac}"`:''} data-f="${f}" value="${esc(v)}" placeholder="${esc(o.ph||'')}">`}`; };
+const chipsSel = (f, opts, multi, teal) => `<div class="chips">${opts.map(o => { const on = multi ? (S.form[f]||[]).includes(o) : S.form[f] === o; return `<button class="chip${on?' on':''}${teal&&on?' t':''}" data-a="${multi?'chipM':'chip1'}" data-f="${f}" data-v="${esc(o)}">${esc(o)}</button>`; }).join('')}</div>`;
+function adultoForm(){
+  return inp('nombre','Nombre',{ac:'given-name'}) + inp('apellidos','Apellidos',{ac:'family-name'}) +
+    `<label class="f">Parentesco</label>${chipsSel('parentesco', PARENTESCO)}` +
+    (S.form.parentesco === 'Otro' ? inp('parentescoOtro','¿Cuál?') : '') +
+    inp('profesion','Profesión u oficio') +
+    inp('trabajo','Trabajo y horarios',{opt:1, ph:'Ej: turnos 7x7, trabajo desde casa…'}) +
+    inp('telefono','Teléfono',{type:'tel', im:'tel', ac:'tel'}) +
+    inp('correo','Correo',{type:'email', im:'email', ac:'email'}) +
+    `<label class="f">¿Vive con los niños?</label>${chipsSel('viveCon',['Sí','No','A veces'])}` +
+    `<label class="f">¿Cómo prefieres que te contacten?</label>${chipsSel('contacto',['WhatsApp','Llamada','Correo'])}` +
+    inp('notas','Algo más que quieras contar',{opt:1, area:1});
+}
+function hijoForm(){
+  return inp('nombre','Nombre') + inp('apellidos','Apellidos') +
+    inp('fechaNac','Fecha de nacimiento',{type:'date'}) +
+    `<div class="row" style="gap:10px"><div style="flex:1">${inp('curso','Curso',{ph:'Ej: 2° básico'})}</div><div style="flex:1.4">${inp('colegio','Colegio o jardín')}</div></div>` +
+    inp('viveCon','¿Con quién vive?') +
+    inp('hermanos','Hermanos y edades',{opt:1}) +
+    inp('motivo','¿Qué les gustaría trabajar o qué les preocupa?',{area:1, ph:'Con sus palabras, como se lo contarían a la psicóloga.'}) +
+    inp('gustos','¿Qué le gusta y qué lo/la calma?',{opt:1, area:1}) +
+    inp('salud','Salud: diagnósticos, medicamentos o alergias',{opt:1, area:1}) +
+    inp('otros','Otros profesionales que lo/la atienden',{opt:1, ph:'Ej: fonoaudióloga, neuróloga…'});
+}
+const ADULTO_F = ['nombre','apellidos','parentesco','parentescoOtro','profesion','trabajo','telefono','correo','viveCon','contacto','notas'];
+const HIJO_F = ['nombre','apellidos','fechaNac','curso','colegio','viveCon','hermanos','motivo','gustos','salud','otros'];
+const pick = (o, ks) => { const r = {}; ks.forEach(k => r[k] = (o[k] == null ? '' : String(o[k]).trim())); return r; };
+
+function kidCard(h, action){
+  const proxima = proximaSesion(h.id);
+  return `<div class="card${action?' tap':''}" ${action?`data-a="${action}" data-v="${h.id}"`:''}><div class="kid">${av(h)}<div style="flex:1;min-width:0"><div class="kid-n">${esc(h.nombre)} ${esc(h.apellidos||'')}</div>
+    <div class="small muted">${[edad(h.fechaNac), h.curso, h.colegio].filter(Boolean).map(esc).join(' · ')}</div>
+    ${proxima && action!=='editarHijo' ? `<div class="small" style="margin-top:4px;color:var(--tea-d);font-weight:700">Próxima sesión: ${esc(fFecha(proxima))} ${esc(fHora(proxima))}</div>`:''}
+    </div>${action==='editarHijo'?I('lapiz'):''}</div></div>`;
+}
+function proximaSesion(hid){
+  const r = S.reportes.filter(r => r.hijoId === hid).sort((a,b) => b.fechaSesion - a.fechaSesion)[0];
+  return r && r.proximaSesion && r.proximaSesion > Date.now() - 3*36e5 ? r.proximaSesion : null;
+}
+
+/* =========================================================
+   App de la familia
+   ========================================================= */
+function viewParent(){
+  if (['registro-form','registro','hijo-form','adulto-form','reporte'].includes(S.view)) return parentSub();
+  const nr = noLeidos().length, pend = S.preguntas.filter(p => p.estado === 'pendiente').length;
+  const tabs = [['inicio','Inicio','home'],['registros','Registros','lista'],['preguntas','Preguntas','preg'],['reportes','Reportes','rep'],['familia','Familia','fam']];
+  const nav = `<nav class="nav"><div class="nav-in">${tabs.map(([v,l,i]) => `<button class="${S.view===v?'on':''}" data-a="tab" data-v="${v}">${I(i)}${l}${v==='reportes'&&nr?`<span class="bdg">${nr}</span>`:''}${v==='preguntas'&&pend?`<span class="bdg" style="background:var(--pea-d)">${pend}</span>`:''}</button>`).join('')}</div></nav>`;
+  const body = ({inicio:pInicio, registros:pRegistros, preguntas:pPreguntas, reportes:pReportes, familia:pFamilia}[S.view] || pInicio)();
+  return topBar(brand() + '<div class="sp"></div>' + offChip()) + `<div class="wrap">${body}</div>` + nav;
+}
+
+function pInicio(){
+  const hs = hijosOrd(), nr = noLeidos();
+  const pc = S.conductas.filter(porCompletar).length;
+  const rec = S.conductas.slice(0,4);
+  return `<div style="padding-top:18px"><h1>Hola, ${esc(primerNombre(miNombre()))}</h1><p class="muted">¿Qué quieres contarle hoy a ${esc(CFG.nombrePila)}?</p></div>
+    ${nr.length ? `<div class="card tap" data-a="verReporte" data-v="${nr[0].id}" style="background:var(--tea-l);border-color:var(--tea)"><div class="row"><span class="dot" style="background:var(--tea-d)"></span><div style="flex:1"><b>${nr.length===1?'Hay un reporte nuevo':`Hay ${nr.length} reportes nuevos`}</b><div class="small muted">Sesión de ${esc(hijo(nr[0].hijoId)?.nombre||'')} · ${esc(fFecha(nr[0].fechaSesion))}</div></div>${I('back').replace('class="i"','class="i" style="transform:rotate(180deg)"')}</div></div>` : ''}
+    <div class="acts">
+      <button class="act a1" data-a="nuevoRegistro" data-v="dificil"><span class="row"><span class="ico">${I('alerta')}</span>Registrar una conducta</span><span class="hint">Algo que pasó y les preocupa. Lo rápido primero, el detalle después.</span></button>
+      <button class="act a2" data-a="nuevoRegistro" data-v="positiva"><span class="ico">${I('sol')}</span>Contar algo bueno</span></button>
+      <button class="act a3" data-a="tab" data-v="preguntas"><span class="ico">${I('preg')}</span>Hacer una pregunta</button>
+    </div>
+    ${pc ? `<div class="card tap" data-a="filtroPC"><div class="row"><span class="tag p">Por completar</span><span class="small">${pc===1?'Hay 1 registro':'Hay '+pc+' registros'} a medio llenar</span></div></div>`:''}
+    <div class="sec"><h2>${hs.length>1?'Sus hijos':'Su hijo/a'}</h2></div>
+    ${hs.map(h => kidCard(h,'verHijoReg')).join('')}
+    <div class="sec"><h2>Últimos registros</h2><div class="sp"></div>${rec.length?'<button class="link" data-a="tab" data-v="registros">Ver todos</button>':''}</div>
+    ${rec.length ? rec.map(regCard).join('') : `<div class="empty">${RAINBOW}<p>Todavía no hay registros.<br>Cuando pase algo, anótenlo acá.</p></div>`}`;
+}
+
+function regCard(c){
+  const h = hijo(c.hijoId), pos = c.tipo === 'positiva';
+  return `<div class="card tap" data-a="verRegistro" data-v="${c.id}"><div class="row top">${av(h,1)}<div style="flex:1;min-width:0">
+    <div class="row wrapf" style="gap:6px"><b>${esc(h?.nombre||'')}</b><span class="tiny">${esc(cuando(c.fecha))}</span>${c._pend?'<span class="tiny">· enviando…</span>':''}</div>
+    <div class="row wrapf" style="gap:6px;margin:6px 0">${(c.categorias||[]).map(k => `<span class="tag ${pos?'t':'s'}">${esc(k)}</span>`).join('')}${porCompletar(c)?'<span class="tag p">Por completar</span>':''}</div>
+    ${c.descripcion?`<div class="small muted" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(c.descripcion)}</div>`:''}
+    </div>${!pos && c.intensidad ? lvl(c.intensidad) : ''}</div></div>`;
+}
+const lvl = n => `<span class="lvl" title="Intensidad ${n} de 5">${[1,2,3,4,5].map(i => `<i class="${i<=n?'on':''}"></i>`).join('')}</span>`;
+
+function pRegistros(){
+  const hs = hijosOrd(), f = S.filtroHijo;
+  let list = S.conductas;
+  if (f === 'pc') list = list.filter(porCompletar);
+  else if (f === 'pos') list = list.filter(c => c.tipo === 'positiva');
+  else if (f !== 'todos') list = list.filter(c => c.hijoId === f);
+  const chip = (v,l) => `<button class="chip${f===v?' on':''}" data-a="filtro" data-v="${v}">${esc(l)}</button>`;
+  return `<div class="sec" style="margin-top:18px"><h1 style="margin:0">Registros</h1><div class="sp"></div><button class="btn sm" data-a="nuevoRegistro" data-v="dificil">${I('plus')} Nuevo</button></div>
+    <div class="chips scroll">${chip('todos','Todos')}${hs.length>1?hs.map(h => chip(h.id,h.nombre)).join(''):''}${chip('pos','Cosas buenas')}${chip('pc','Por completar')}</div>
+    <div style="margin-top:12px">${list.length ? agrupar(list) : `<div class="empty">${RAINBOW}<p>No hay registros en esta vista.</p></div>`}</div>`;
+}
+function agrupar(list){
+  let out = '', last = '';
+  list.forEach(c => { const k = new Date(c.fecha).toLocaleDateString('es-CL',{month:'long',year:'numeric'}); if (k !== last){ out += `<div class="tiny" style="margin:14px 0 8px;font-weight:800;text-transform:uppercase;letter-spacing:.08em">${esc(k)}</div>`; last = k; } out += regCard(c); });
+  return out;
+}
+
+function regFormView(){
+  const f = S.form, pos = f.tipo === 'positiva', hs = hijosOrd(), edit = !!S.p.id;
+  const cats = pos ? CAT_POS : CAT_DIF;
+  let html = `<div class="tabs2" style="margin-top:16px"><button class="${!pos?'on':''}" data-a="regTipo" data-v="dificil">Algo que preocupa</button><button class="${pos?'on':''}" data-a="regTipo" data-v="positiva">Algo bueno</button></div>`;
+  if (hs.length > 1) html += `<label class="f">¿Quién?</label><div class="chips">${hs.map(h => `<button class="chip${f.hijoId===h.id?' on':''}" data-a="chip1" data-f="hijoId" data-v="${h.id}">${esc(h.nombre)}</button>`).join('')}</div>`;
+  html += `<label class="f">¿Qué pasó? <span class="opt">(elige una o más)</span></label>${chipsSel('categorias', cats, true, pos)}`;
+  if ((f.categorias||[]).includes('Otra')) html += inp('catOtra','¿Cuál?');
+  if (!pos) html += `<label class="f">¿Qué tan fuerte fue?</label><div class="intens">${[1,2,3,4,5].map(n => `<button class="${f.intensidad===n?'on':''}" data-a="intens" data-v="${n}">${n}</button>`).join('')}</div><div class="tiny" style="margin-top:4px">${f.intensidad?esc(INTENS[f.intensidad]):'1 = leve · 5 = desbordado/a'}</div>`;
+  html += `<label class="f">¿Cuándo?</label><input class="in" type="datetime-local" data-f="fechaTxt" value="${esc(f.fechaTxt)}">`;
+  if (!pos) html += `
+    <div class="abc"><div class="abc-l">Antes</div>${inp('antes','¿Qué estaba pasando justo antes?',{area:1, ph:'Dónde estaban, qué se le pidió, qué cambió…'})}</div>
+    <div class="abc b"><div class="abc-l">Durante</div>${inp('descripcion','¿Qué hizo o dijo?',{area:1})}
+      <label class="f">¿Cuánto duró? <span class="opt">(aprox.)</span></label>${chipsSel('duracion', DURACION)}
+      <label class="f">¿Dónde?</label>${chipsSel('lugar', LUGARES)}</div>
+    <div class="abc c"><div class="abc-l">Después</div>${inp('reaccion','¿Cómo reaccionaron ustedes?',{area:1})}${inp('resultado','¿Cómo terminó?',{area:1, opt:1})}</div>`;
+  else html += inp('descripcion','Cuéntanos qué pasó',{area:1}) + inp('reaccion','¿Qué creen que lo/la ayudó? ¿Cómo reaccionaron?',{area:1, opt:1});
+  html += inp('notas','Algo más',{area:1, opt:1});
+  html += `<div style="margin-top:22px" class="stack"><button class="btn full" data-a="guardarRegistro">${edit?'Guardar cambios':'Guardar'}</button>
+    ${!pos && !edit ? '<p class="tiny" style="text-align:center">Pueden guardar solo con lo básico y completar el resto después.</p>':''}
+    ${edit && S.conductas.find(c => c.id===S.p.id)?.autorUid === S.user.uid ? '<button class="btn ghost full danger" data-a="borrarRegistro">Eliminar registro</button>':''}</div>`;
+  return html;
+}
+
+function regDetalle(c){
+  const h = hijo(c.hijoId), pos = c.tipo === 'positiva';
+  const blk = (cls, lbl, txt) => txt ? `<div class="abc ${cls}"><div class="abc-l">${lbl}</div><div class="pre">${esc(txt)}</div></div>` : '';
+  return `<div style="padding-top:16px"><div class="row">${av(h)}<div><h2 style="margin:0">${esc(h?.nombre||'')}</h2><div class="small muted">${esc(fFechaL(c.fecha))}, ${esc(fHora(c.fecha))}</div></div></div>
+    <div class="row wrapf" style="gap:6px;margin:14px 0">${(c.categorias||[]).map(k => `<span class="tag ${pos?'t':'s'}">${esc(k==='Otra'&&c.catOtra?c.catOtra:k)}</span>`).join('')}${porCompletar(c)?'<span class="tag p">Por completar</span>':''}</div>
+    ${!pos && c.intensidad ? `<p class="small">Intensidad ${lvl(c.intensidad)} <b>${esc(INTENS[c.intensidad])}</b></p>`:''}
+    ${[c.duracion, c.lugar].filter(Boolean).length ? `<p class="small muted">${[c.duracion,c.lugar].filter(Boolean).map(esc).join(' · ')}</p>`:''}
+    ${pos ? blk('', 'Qué pasó', c.descripcion) + blk('c','Qué ayudó', c.reaccion) : blk('','Antes',c.antes) + blk('b','Qué hizo o dijo',c.descripcion) + blk('c','Cómo reaccionaron',c.reaccion) + blk('c','Cómo terminó',c.resultado)}
+    ${blk('','Notas',c.notas)}
+    <p class="tiny" style="margin-top:14px">Registrado por ${esc(c.autorNombre||'')}${c.editado?' · editado '+esc(cuando(c.editado)):''}</p></div>`;
+}
+
+function parentSub(){
+  const v = S.view;
+  if (v === 'registro-form') return backBar(S.p.id ? 'Editar registro' : 'Nuevo registro') + `<div class="wrap">${regFormView()}</div>`;
+  if (v === 'registro'){
+    const c = S.conductas.find(x => x.id === S.p.id); if (!c) return backBar('Registro') + '<div class="wrap"><p class="empty">Este registro ya no existe.</p></div>';
+    return backBar('Registro') + `<div class="wrap">${regDetalle(c)}<div style="margin-top:18px"><button class="btn sec2 full" data-a="editarRegistro" data-v="${c.id}">${I('lapiz')} ${porCompletar(c)?'Completar':'Editar'}</button></div></div>`;
+  }
+  if (v === 'hijo-form') return backBar(S.p.id ? 'Editar ficha' : 'Agregar hijo/a') + `<div class="wrap">${hijoForm()}<div style="margin-top:20px"><button class="btn full" data-a="guardarHijo">Guardar</button></div></div>`;
+  if (v === 'adulto-form') return backBar('Mis datos') + `<div class="wrap">${adultoForm()}<div style="margin-top:20px"><button class="btn full" data-a="guardarAdulto">Guardar</button></div></div>`;
+  if (v === 'reporte'){
+    const r = S.reportes.find(x => x.id === S.p.id); if (!r) return backBar('Reporte') + '<div class="wrap"><p class="empty">No encontramos este reporte.</p></div>';
+    return backBar('Reporte de sesión') + `<div class="wrap">${reporteDetalle(r)}</div>`;
+  }
+  return '';
+}
+
+/* ---------- Preguntas ---------- */
+function pPreguntas(){
+  const hs = hijosOrd(), f = S.form, t = S.pregTab;
+  const pend = S.preguntas.filter(p => p.estado === 'pendiente'), resp = S.preguntas.filter(p => p.estado !== 'pendiente');
+  const editId = S.p.editPreg;
+  return `<div style="padding-top:18px"><h1>Preguntas</h1><p class="muted">Anoten lo que se les vaya ocurriendo. ${esc(CFG.nombrePila)} las ve antes de la sesión.</p></div>
+    <div class="card">
+      <textarea class="in" data-f="pregTexto" placeholder="Escribe tu pregunta…">${esc(f.pregTexto)}</textarea>
+      ${hs.length > 1 ? `<div class="chips" style="margin-top:10px"><button class="chip${!f.pregHijo?' on':''}" data-a="chip1" data-f="pregHijo" data-v="">General</button>${hs.map(h => `<button class="chip${f.pregHijo===h.id?' on':''}" data-a="chip1" data-f="pregHijo" data-v="${h.id}">${esc(h.nombre)}</button>`).join('')}</div>`:''}
+      <div class="row" style="margin-top:12px"><label class="check" style="margin:0;font-weight:700;font-size:14px"><input type="checkbox" data-f="pregImp" ${f.pregImp?'checked':''}> Es importante</label><div class="sp"></div>
+      ${editId?'<button class="btn ghost sm" data-a="cancelarPreg">Cancelar</button>':''}<button class="btn sm" data-a="enviarPreg">${editId?'Guardar':'Enviar'}</button></div>
+    </div>
+    <div class="tabs2" style="margin-top:8px"><button class="${t==='pendientes'?'on':''}" data-a="pregTab" data-v="pendientes">Para la sesión (${pend.length})</button><button class="${t==='respondidas'?'on':''}" data-a="pregTab" data-v="respondidas">Respondidas (${resp.length})</button></div>
+    <div style="margin-top:12px">${(t==='pendientes'?pend:resp).map(pregCard).join('') || `<div class="empty">${RAINBOW}<p>${t==='pendientes'?'No hay preguntas pendientes.':'Aún no hay preguntas respondidas.'}</p></div>`}</div>`;
+}
+function pregCard(p, admin){
+  const h = hijo(p.hijoId);
+  return `<div class="card">${p.importante?'<span class="tag s" style="float:right">Importante</span>':''}
+    <div class="tiny">${esc(p.autorNombre||'')} · ${esc(cuando(p.creado))}${h?' · sobre '+esc(h.nombre):''}${p._pend?' · enviando…':''}</div>
+    <div class="pre" style="margin-top:6px;font-weight:600">${esc(p.texto)}</div>
+    ${p.estado==='respondida' && p.respuesta ? `<div class="box t" style="margin-bottom:0"><div class="tiny" style="color:var(--tea-d);font-weight:800">${esc(CFG.nombrePila)} respondió</div><div class="pre small" style="margin-top:4px">${esc(p.respuesta)}</div></div>`:''}
+    ${p.estado==='vista' ? `<div class="box t small" style="margin-bottom:0">Conversada en sesión${p.respondida?' · '+esc(fCorta(p.respondida)):''}</div>`:''}
+    ${admin ? adminPregActions(p) : (p.estado==='pendiente' && p.autorUid===S.user.uid ? `<div class="row" style="margin-top:8px;gap:14px"><button class="link" data-a="editarPreg" data-v="${p.id}">Editar</button><button class="link danger" data-a="borrarPreg" data-v="${p.id}">Eliminar</button></div>`:'')}
+  </div>`;
+}
+
+/* ---------- Reportes ---------- */
+function pReportes(){
+  const hs = hijosOrd(), f = S.filtroHijo, L = leidos();
+  const list = S.reportes.filter(r => f === 'todos' || !hijo(f) || r.hijoId === f);
+  return `<div style="padding-top:18px"><h1>Reportes de sesión</h1><p class="muted">Lo que ${esc(CFG.nombrePila)} les cuenta después de cada sesión.</p></div>
+    ${hs.length>1?`<div class="chips scroll"><button class="chip${f==='todos'||!hijo(f)?' on':''}" data-a="filtro" data-v="todos">Todos</button>${hs.map(h => `<button class="chip${f===h.id?' on':''}" data-a="filtro" data-v="${h.id}">${esc(h.nombre)}</button>`).join('')}</div>`:''}
+    <div style="margin-top:12px">${list.map(r => { const h = hijo(r.hijoId); return `<div class="card tap" data-a="verReporte" data-v="${r.id}"><div class="row">${av(h,1)}<div style="flex:1"><b>${esc(h?.nombre||'')}</b> · <span class="small">${esc(fFechaL(r.fechaSesion))}</span><div class="small muted" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(r.trabajamos||r.observe||'')}</div></div>${L.includes(r.id)?'':'<span class="dot"></span>'}</div></div>`; }).join('') || `<div class="empty">${RAINBOW}<p>Todavía no hay reportes.<br>Aparecerán acá después de cada sesión.</p></div>`}</div>`;
+}
+function reporteDetalle(r){
+  const h = hijo(r.hijoId);
+  const blk = (cls, t, x) => x ? `<div class="box ${cls}"><h3>${t}</h3><div class="pre">${esc(x)}</div></div>` : '';
+  return `<div style="padding-top:16px"><div class="row">${av(h)}<div><h2 style="margin:0">Sesión de ${esc(h?.nombre||'')}</h2><div class="small muted">${esc(fFechaL(r.fechaSesion))}</div></div></div>
+    <div style="margin-top:14px">${blk('t','Lo que trabajamos', r.trabajamos)}${blk('p','Lo que observé', r.observe)}${blk('s','Para la casa', r.casa)}</div>
+    ${r.proximaSesion ? `<div class="card row" style="margin-top:12px">${I('reloj')}<div><b>Próxima sesión</b><div class="small muted">${esc(fFechaL(r.proximaSesion))}, ${esc(fHora(r.proximaSesion))}</div></div></div>`:''}
+    <p class="tiny" style="margin-top:14px">${esc(r.autorNombre||CFG.psicologa)}${r.enviado?' · enviado '+esc(cuando(r.enviado)):''}</p></div>`;
+}
+
+/* ---------- Familia ---------- */
+function pFamilia(){
+  const m = me(), hs = hijosOrd();
+  const otros = S.adultos.filter(a => a.id !== S.user.uid);
+  const fam = S.fam || {};
+  const codigoVigente = fam.codigo && fam.codigoExpira > Date.now();
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent), standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  return `<div style="padding-top:18px"><h1>${esc(fam.nombre||'Mi familia')}</h1></div>
+    <div class="sec"><h2>Niños</h2><div class="sp"></div><button class="link" data-a="nuevoHijo">+ Agregar</button></div>
+    ${hs.map(h => kidCard(h,'editarHijo')).join('')}
+    <div class="sec"><h2>Adultos</h2></div>
+    ${m ? `<div class="card tap" data-a="editarAdulto"><div class="row"><div style="flex:1"><b>${esc(m.nombre)} ${esc(m.apellidos||'')}</b> <span class="tag">Tú</span><div class="small muted">${esc(m.parentesco==='Otro'?m.parentescoOtro:m.parentesco)} · ${esc(m.profesion||'')}</div></div>${I('lapiz')}</div></div>`:''}
+    ${otros.map(a => `<div class="card"><b>${esc(a.nombre)} ${esc(a.apellidos||'')}</b><div class="small muted">${esc(a.parentesco==='Otro'?a.parentescoOtro:a.parentesco)} · ${esc(a.profesion||'')}</div></div>`).join('')}
+    <div class="card" style="background:var(--pea-l);border-color:var(--pea)"><b>¿Falta otro adulto?</b>
+      ${codigoVigente ? `<p class="small" style="margin:6px 0 10px">Compártele este código. Vence el ${esc(fFechaL(fam.codigoExpira))}.</p><div class="code">${esc(fam.codigo)}</div><div class="row" style="margin-top:10px"><button class="btn sm sec2" data-a="copiarInv">${I('copiar')} Copiar mensaje</button><a class="btn sm teal" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(mensajeInvitacion(fam.codigo, fam.nombre, fam.codigoExpira))}">${I('wsp')} WhatsApp</a></div>`
+        : `<p class="small" style="margin:6px 0 0">Pídanle a ${esc(CFG.nombrePila)} un código nuevo para que se una.</p>`}
+    </div>
+    <div class="sec"><h2>Ajustes</h2></div>
+    ${!standalone ? `<div class="card"><b>Instalar en el celular</b><p class="small muted" style="margin:6px 0 10px">${isIOS ? 'En Safari toca el botón Compartir y luego "Agregar a inicio".' : 'Queda como una app en la pantalla de inicio y funciona sin internet.'}</p>${deferredPrompt?'<button class="btn sm" data-a="instalar">Instalar</button>':''}</div>`:''}
+    <div class="card row"><div style="flex:1"><b>Tema</b><div class="small muted">Claro, oscuro o el del teléfono</div></div><div class="chips">${['auto','light','dark'].map(t => `<button class="chip${(ls.get('cultiva-tema','auto'))===t?' on':''}" data-a="tema" data-v="${t}">${{auto:'Auto',light:'Claro',dark:'Oscuro'}[t]}</button>`).join('')}</div></div>
+    <div class="card"><b>Privacidad</b><p class="small muted" style="margin:6px 0 0">Lo que registran lo ven solo los adultos de su familia y ${esc(CFG.psicologa)}. <button class="link" data-a="verConsent">Ver condiciones</button></p></div>
+    <button class="btn ghost full" data-a="salir" style="margin-top:6px">${I('salir')} Cerrar sesión</button>
+    <p class="tiny" style="text-align:center;margin-top:14px">${esc(S.user.email)} · ${esc(CFG.centro)}</p>`;
+}
+function mensajeInvitacion(code, nombre, exp){
+  return `Hola! Les comparto la app de ${CFG.centro} para acompañar el proceso con ${CFG.psicologa}.\n\n1. Abran este link en el celular: ${APP_URL}\n2. Toquen "Tengo un código" y escriban: ${code}\n3. En iPhone ábranlo en Safari y agréguenlo a inicio (botón Compartir).\n\nEl código sirve para todos los adultos de la familia${exp?' hasta el '+new Date(exp).toLocaleDateString('es-CL',{day:'numeric',month:'long'}):''}.`;
+}
+
+/* =========================================================
+   Panel de la psicóloga
+   ========================================================= */
+function startPanel(){
+  subs.push(api.listen('familias', d => { S.familias = d.sort((a,b) => (b.ultimaActividad||0)-(a.ultimaActividad||0)); render(); }, e => toast(errMsg(e), 4000)));
+  render(true);
+}
+function openFam(fid){
+  unsubAll(psubs);
+  S.pfid = fid; S.ptab = 'preparar'; S.phijo = null; S.fid = fid;
+  S.adultos = []; S.hijos = []; S.conductas = []; S.preguntas = []; S.reportes = [];
+  const F = 'familias/' + fid, onErr = e => toast(errMsg(e), 4000);
+  psubs.push(api.listen(F+'/adultos', d => { S.adultos = d; render(); }, onErr));
+  psubs.push(api.listen(F+'/hijos', d => { S.hijos = d; if (!S.phijo && d.length) S.phijo = hijosOrd()[0].id; render(); }, onErr));
+  psubs.push(api.listen(F+'/conductas', d => { S.conductas = d.sort((a,b) => b.fecha-a.fecha); render(); }, onErr));
+  psubs.push(api.listen(F+'/preguntas', d => { S.preguntas = d.sort((a,b) => b.creado-a.creado); render(); }, onErr));
+  psubs.push(api.listen(F+'/reportes', d => { S.reportes = d.sort((a,b) => b.fechaSesion-a.fechaSesion); render(); }, onErr));
+  const vistos = ls.get('cultiva-vistos', {}); vistos[fid] = Date.now(); ls.set('cultiva-vistos', vistos);
+}
+function viewPanel(){
+  const vistos = ls.get('cultiva-vistos', {});
+  const q = S.buscar.trim().toLowerCase();
+  const fams = S.familias.filter(f => !q || (f.nombre||'').toLowerCase().includes(q));
+  const side = `<div class="p-side ${S.pfid?'p-hide-m':''}">
+    <div class="row" style="margin:6px 0 12px"><h2 style="margin:0">Familias</h2><div class="sp"></div><button class="btn sm" data-a="modalNuevaFam">${I('plus')} Nueva</button></div>
+    <input class="in" data-f="__buscar" placeholder="Buscar familia…" value="${esc(S.buscar)}" style="margin-bottom:10px">
+    ${fams.map(f => { const nuevo = f.ultimaActividad > (vistos[f.id]||0) && f.actividadTexto && f.actividadTexto !== 'Familia creada'; return `<div class="fam-it${S.pfid===f.id?' on':''}" data-a="abrirFam" data-v="${f.id}"><div class="av c${(f.nombre||'').length%3}">${esc((f.nombre||'?').replace(/^Familia\s+/i,'')[0]||'?')}</div><div style="flex:1;min-width:0"><div class="n">${esc(f.nombre)}</div><div class="tiny" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(f.actividadTexto||'')} · ${esc(cuando(f.ultimaActividad||f.creada))}</div></div>${nuevo&&S.pfid!==f.id?'<span class="dot"></span>':''}</div>`; }).join('') || '<p class="muted small">Aún no hay familias. Crea la primera con "Nueva".</p>'}
+    <div style="margin-top:20px"><button class="btn ghost full sm" data-a="salir">${I('salir')} Cerrar sesión</button></div>
+  </div>`;
+  const main = S.pfid ? panelFam() : `<div class="p-main p-hide-m"><div class="empty" style="padding-top:18vh">${RAINBOW}<p>Elige una familia para ver sus registros,<br>preguntas y reportes.</p></div></div>`;
+  return topBar(`${S.pfid?`<button class="top-back p-only-m" data-a="cerrarFam">${I('back')}</button>`:''}${brand()}<div class="sp"></div><span class="small muted p-hide-m">${esc(CFG.psicologa)}</span>${offChip()}`, true) + `<div class="panel">${side}${main}</div>`;
+}
+function panelFam(){
+  const fam = S.familias.find(f => f.id === S.pfid) || {};
+  const pend = S.preguntas.filter(p => p.estado === 'pendiente').length;
+  const tabs = [['preparar','Antes de la sesión'],['registros','Registros'],['preguntas','Preguntas'+(pend?' ('+pend+')':'')],['reportes','Reportes'],['ficha','Ficha']];
+  let body = '';
+  if (S.ptab === 'reporte-form') body = adminReporteForm();
+  else body = ({preparar:aPreparar, registros:aRegistros, preguntas:aPreguntas, reportes:aReportes, ficha:aFicha}[S.ptab] || aPreparar)();
+  return `<div class="p-main"><div style="padding-top:14px"><h1>${esc(fam.nombre||'')}</h1><p class="small muted">${hijosOrd().map(h => esc(h.nombre)+(h.fechaNac?' ('+esc(edad(h.fechaNac))+')':'')).join(' · ') || 'Todavía sin datos de los niños'}</p></div>
+    ${S.ptab!=='reporte-form'?`<div class="ptabs">${tabs.map(([v,l]) => `<button class="${S.ptab===v?'on':''}" data-a="ptab" data-v="${v}">${l}</button>`).join('')}</div>`:''}${body}</div>`;
+}
+function hijoChips(allowAll){
+  const hs = hijosOrd(); if (hs.length < 2 && !allowAll) return '';
+  return `<div class="chips" style="margin-bottom:12px">${allowAll?`<button class="chip${S.phijo==='todos'?' on':''}" data-a="phijo" data-v="todos">Todos</button>`:''}${hs.map(h => `<button class="chip${S.phijo===h.id?' on':''}" data-a="phijo" data-v="${h.id}">${esc(h.nombre)}</button>`).join('')}</div>`;
+}
+function aPreparar(){
+  const hs = hijosOrd();
+  if (!hs.length) return `<div class="empty">${RAINBOW}<p>La familia todavía no completa sus datos.<br>Envíales el código desde "Ficha".</p></div>`;
+  const hid = hijo(S.phijo) ? S.phijo : hs[0].id, h = hijo(hid); S.phijo = hid;
+  const ult = S.reportes.filter(r => r.hijoId === hid).sort((a,b) => b.fechaSesion-a.fechaSesion)[0];
+  const desde = ult ? ult.fechaSesion : 0;
+  const cs = S.conductas.filter(c => c.hijoId === hid && c.fecha > desde);
+  const dif = cs.filter(c => c.tipo !== 'positiva'), pos = cs.filter(c => c.tipo === 'positiva');
+  const prom = dif.filter(c => c.intensidad).reduce((s,c,_,a) => s + c.intensidad/a.length, 0);
+  const cnt = {}; dif.forEach(c => (c.categorias||[]).forEach(k => cnt[k] = (cnt[k]||0)+1));
+  const top = Object.entries(cnt).sort((a,b) => b[1]-a[1]).slice(0,5);
+  const preg = S.preguntas.filter(p => p.estado === 'pendiente' && (!p.hijoId || p.hijoId === hid)).sort((a,b) => (b.importante?1:0)-(a.importante?1:0) || a.creado-b.creado);
+  return `${hijoChips()}
+    <div class="card"><div class="row">${av(h)}<div style="flex:1"><b>${esc(h.nombre)}</b> <span class="small muted">${esc(edad(h.fechaNac))}</span><div class="small muted">${ult ? 'Desde la última sesión ('+esc(fFechaL(ult.fechaSesion))+')' : 'Desde el inicio (aún no hay reportes)'}</div></div></div>
+      <div class="stats"><div class="stat"><b style="color:var(--sal-d)">${dif.length}</b><span>Conductas difíciles</span></div><div class="stat"><b style="color:var(--tea-d)">${pos.length}</b><span>Cosas buenas</span></div><div class="stat"><b>${prom?prom.toFixed(1):'–'}</b><span>Intensidad media</span></div></div>
+      ${top.length?`<div class="chips">${top.map(([k,n]) => `<span class="tag s">${esc(k)} · ${n}</span>`).join('')}</div>`:''}
+      ${barras(hid)}
+    </div>
+    <div class="sec"><h2>Preguntas para hoy</h2></div>
+    ${preg.map(p => pregCard(p, true)).join('') || '<p class="muted small">No hay preguntas pendientes.</p>'}
+    <div class="sec"><h2>Registros</h2></div>
+    ${cs.map(c => `<div class="card">${regDetalleCorto(c)}</div>`).join('') || '<p class="muted small">Sin registros en este período.</p>'}
+    <div style="margin:20px 0"><button class="btn full" data-a="nuevoReporte" data-v="${hid}">${I('rep')} Escribir reporte de la sesión</button></div>`;
+}
+function regDetalleCorto(c){
+  const pos = c.tipo === 'positiva';
+  const ln = (l, t) => t ? `<div class="small" style="margin-top:4px"><b class="muted">${l}:</b> ${nl(t)}</div>` : '';
+  return `<div class="row wrapf" style="gap:6px"><span class="tiny">${esc(cuando(c.fecha))} · ${esc(c.autorNombre||'')}</span><div class="sp"></div>${!pos&&c.intensidad?lvl(c.intensidad):''}</div>
+    <div class="row wrapf" style="gap:6px;margin:6px 0">${(c.categorias||[]).map(k => `<span class="tag ${pos?'t':'s'}">${esc(k==='Otra'&&c.catOtra?c.catOtra:k)}</span>`).join('')}${[c.duracion,c.lugar].filter(Boolean).map(x => `<span class="tag">${esc(x)}</span>`).join('')}</div>
+    ${pos ? ln('Qué pasó',c.descripcion)+ln('Qué ayudó',c.reaccion) : ln('Antes',c.antes)+ln('Hizo',c.descripcion)+ln('Reacción',c.reaccion)+ln('Terminó',c.resultado)}${ln('Notas',c.notas)}`;
+}
+function barras(hid){
+  const wk = 8, now = new Date(); now.setHours(23,59,59,999);
+  const ini = now.getTime() - wk*7*DIA;
+  const b = Array.from({length:wk}, () => [0,0]);
+  S.conductas.filter(c => c.hijoId === hid && c.fecha > ini).forEach(c => { const i = Math.min(wk-1, Math.floor((c.fecha-ini)/(7*DIA))); b[i][c.tipo==='positiva'?1:0]++; });
+  const max = Math.max(1, ...b.map(x => Math.max(x[0], x[1])));
+  return `<div style="margin-top:14px"><div class="tiny" style="font-weight:800">Últimas ${wk} semanas</div>
+    <div class="bars">${b.map(x => `<div class="wk" style="flex-direction:row;align-items:flex-end;gap:2px"><div class="b1" style="flex:1;height:${x[0]/max*100}%"></div><div class="b2" style="flex:1;height:${x[1]/max*100}%"></div></div>`).join('')}</div>
+    <div class="bars-l">${b.map((_,i) => `<span>${esc(fCorta(ini + i*7*DIA + DIA))}</span>`).join('')}</div>
+    <div class="legend"><span><i style="background:var(--sal)"></i>Difíciles</span><span><i style="background:var(--tea)"></i>Cosas buenas</span></div></div>`;
+}
+function aRegistros(){
+  if (!S.phijo || (S.phijo!=='todos' && !hijo(S.phijo))) S.phijo = 'todos';
+  const list = S.conductas.filter(c => S.phijo === 'todos' || c.hijoId === S.phijo);
+  return `${hijoChips(true)}${list.map(c => `<div class="card"><div class="row" style="margin-bottom:4px">${av(hijo(c.hijoId),1)}<b>${esc(hijo(c.hijoId)?.nombre||'')}</b></div>${regDetalleCorto(c)}</div>`).join('') || '<p class="muted">Sin registros.</p>'}`;
+}
+function aPreguntas(){
+  const pend = S.preguntas.filter(p => p.estado === 'pendiente'), resp = S.preguntas.filter(p => p.estado !== 'pendiente');
+  return `<h3>Pendientes</h3>${pend.map(p => pregCard(p,true)).join('') || '<p class="muted small">Nada pendiente.</p>'}
+    <h3 style="margin-top:20px">Respondidas</h3>${resp.map(p => pregCard(p,true)).join('') || '<p class="muted small">Ninguna todavía.</p>'}`;
+}
+function adminPregActions(p){
+  if (p.estado !== 'pendiente') return `<div class="row" style="margin-top:8px"><button class="link" data-a="reabrirPreg" data-v="${p.id}">Volver a pendiente</button></div>`;
+  const k = 'resp_' + p.id;
+  return `<textarea class="in" data-f="${k}" placeholder="Responder por escrito (opcional)…" style="margin-top:10px;min-height:60px">${esc(S.form[k])}</textarea>
+    <div class="row wrapf" style="margin-top:8px;gap:8px"><button class="btn sm teal" data-a="responderPreg" data-v="${p.id}">Enviar respuesta</button><button class="btn sm ghost" data-a="vistaPreg" data-v="${p.id}">Conversada en sesión</button></div>`;
+}
+function aReportes(){
+  if (!S.phijo || (S.phijo!=='todos' && !hijo(S.phijo))) S.phijo = 'todos';
+  const list = S.reportes.filter(r => S.phijo === 'todos' || r.hijoId === S.phijo);
+  return `${hijoChips(true)}<button class="btn full" data-a="nuevoReporte" data-v="${S.phijo==='todos'?'':S.phijo}" style="margin-bottom:14px">${I('plus')} Nuevo reporte</button>
+    ${list.map(r => `<div class="card"><div class="row"><b style="flex:1">${esc(hijo(r.hijoId)?.nombre||'')} · ${esc(fFechaL(r.fechaSesion))}</b><button class="link" data-a="editarReporte" data-v="${r.id}">Editar</button></div>${reporteDetalle(r).replace('<div style="padding-top:16px">','<div>')}</div>`).join('') || '<p class="muted">Aún no hay reportes enviados.</p>'}`;
+}
+function adminReporteForm(){
+  const f = S.form, hs = hijosOrd();
+  return `<div class="row" style="margin:10px 0"><button class="top-back" data-a="ptab" data-v="${S.p.vuelta||'reportes'}">${I('back')} Volver</button></div>
+    <h2>${S.p.repId?'Editar reporte':'Reporte de sesión'}</h2>
+    <label class="f">Niño/a</label><div class="chips">${hs.map(h => `<button class="chip${f.hijoId===h.id?' on':''}" data-a="chip1" data-f="hijoId" data-v="${h.id}">${esc(h.nombre)}</button>`).join('')}</div>
+    <label class="f">Fecha de la sesión</label><input class="in" type="datetime-local" data-f="fechaTxt" value="${esc(f.fechaTxt)}">
+    ${inp('trabajamos','Lo que trabajamos',{area:1})}
+    ${inp('observe','Lo que observé',{area:1})}
+    ${inp('casa','Para la casa',{area:1, help:'Sugerencias concretas para la familia hasta la próxima sesión.'})}
+    <label class="f">Próxima sesión <span class="opt">(opcional)</span></label><input class="in" type="datetime-local" data-f="proxTxt" value="${esc(f.proxTxt)}">
+    <div class="box p small" style="margin-top:16px">La familia lo verá apenas lo envíes. Mientras escribes, el borrador queda guardado en este equipo.</div>
+    <div class="stack" style="margin-top:12px"><button class="btn full" data-a="enviarReporte">${S.p.repId?'Guardar cambios':'Enviar a la familia'}</button>
+    ${S.p.repId?'<button class="btn ghost full danger" data-a="borrarReporte">Eliminar reporte</button>':''}</div>`;
+}
+function aFicha(){
+  const fam = S.familias.find(f => f.id === S.pfid) || {}, hs = hijosOrd();
+  const vigente = fam.codigo && fam.codigoExpira > Date.now();
+  const row = (k, v) => v ? `<dt>${k}</dt><dd>${esc(v)}</dd>` : '';
+  return `<div class="card" style="background:var(--tea-l);border-color:var(--tea)"><h3>Código de invitación</h3>
+      ${vigente ? `<div class="code">${esc(fam.codigo)}</div><p class="small muted" style="margin:8px 0">Vence el ${esc(fFechaL(fam.codigoExpira))}. Sirve para todos los adultos de la familia.</p>
+      <div class="row wrapf"><button class="btn sm sec2" data-a="copiarInvAdmin">${I('copiar')} Copiar mensaje</button><a class="btn sm teal" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(mensajeInvitacion(fam.codigo, fam.nombre, fam.codigoExpira))}">${I('wsp')} WhatsApp</a><button class="btn sm ghost" data-a="desactivarCodigo">Desactivar</button></div>`
+      : `<p class="small muted">No hay un código vigente. Las cuentas ya creadas siguen funcionando.</p><button class="btn sm" data-a="nuevoCodigo">Generar código nuevo</button>`}
+    </div>
+    <div class="sec"><h2>Niños</h2></div>
+    ${hs.map(h => `<div class="card"><div class="row" style="margin-bottom:10px">${av(h)}<div><b>${esc(h.nombre)} ${esc(h.apellidos||'')}</b><div class="small muted">${esc(edad(h.fechaNac))}${h.fechaNac?' · '+esc(new Date(h.fechaNac+'T12:00').toLocaleDateString('es-CL')):''}</div></div></div>
+      <dl class="ficha">${row('Curso',h.curso)}${row('Colegio',h.colegio)}${row('Vive con',h.viveCon)}${row('Hermanos',h.hermanos)}${row('Motivo',h.motivo)}${row('Le gusta / lo calma',h.gustos)}${row('Salud',h.salud)}${row('Otros profesionales',h.otros)}</dl></div>`).join('') || '<p class="muted small">Sin datos todavía.</p>'}
+    <div class="sec"><h2>Adultos</h2></div>
+    ${S.adultos.map(a => `<div class="card"><b>${esc(a.nombre)} ${esc(a.apellidos||'')}</b> <span class="tag">${esc(a.parentesco==='Otro'?a.parentescoOtro:a.parentesco)}</span>
+      <dl class="ficha" style="margin-top:10px">${row('Profesión',a.profesion)}${row('Trabajo',a.trabajo)}${row('Teléfono',a.telefono)}${row('Correo',a.correo)}${row('Vive con los niños',a.viveCon)}${row('Contacto',a.contacto)}${row('Notas',a.notas)}${row('Aceptó condiciones', a.consentimiento?new Date(a.consentimiento).toLocaleDateString('es-CL'):'')}</dl>
+      ${a.telefono?`<div class="row" style="margin-top:10px"><a class="btn sm teal" target="_blank" rel="noopener" href="https://wa.me/${esc(String(a.telefono).replace(/\D/g,''))}">${I('wsp')} WhatsApp</a></div>`:''}</div>`).join('') || '<p class="muted small">Ningún adulto se ha unido todavía.</p>'}`;
+}
+
+/* ---------- Modal ---------- */
+function viewModal(){
+  const m = S.modal; let h = '';
+  if (m.tipo === 'nuevaFam') h = `<h2>Nueva familia</h2><p class="small muted">Se crea la familia y un código para que los adultos se unan.</p>
+    ${inp('nombreFamilia','Nombre',{ph:'Ej: Familia Pérez Soto'})}
+    <div class="row" style="margin-top:18px;justify-content:flex-end"><button class="btn ghost sm" data-a="cerrarModal">Cancelar</button><button class="btn sm" data-a="crearFamilia">Crear</button></div>`;
+  else if (m.tipo === 'codigo') h = `<h2>${esc(m.nombre)}</h2><p class="small muted">Comparte este código con la familia:</p><div class="code">${esc(m.code)}</div>
+    <div class="row wrapf" style="margin-top:14px"><button class="btn sm sec2" data-a="copiarTexto" data-v="${esc(mensajeInvitacion(m.code, m.nombre, m.exp))}">${I('copiar')} Copiar mensaje</button><a class="btn sm teal" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(mensajeInvitacion(m.code, m.nombre, m.exp))}">${I('wsp')} WhatsApp</a><div class="sp"></div><button class="btn sm" data-a="cerrarModal">Listo</button></div>`;
+  else if (m.tipo === 'consent') h = `<div class="consent" style="max-height:none">${consentHTML()}</div><div style="margin-top:14px"><button class="btn full" data-a="cerrarModal">Cerrar</button></div>`;
+  return `<div class="modal-bg" data-a="cerrarModalFondo"><div class="modal">${h}</div></div>`;
+}
+
+/* =========================================================
+   Acciones
+   ========================================================= */
+function go(view, p){ S.view = view; S.p = p || {}; history.pushState({v:view, p:S.p}, ''); render(true); window.scrollTo(0,0); }
+window.addEventListener('popstate', e => {
+  if (S.modal){ S.modal = null; render(true); return; }
+  if (S.role === 'admin'){ if (S.ptab === 'reporte-form') { S.ptab = 'reportes'; render(true); } else if (S.pfid && innerWidth < 900) { A.cerrarFam(); } return; }
+  const st = e.state || {v:'inicio'}; S.view = st.v || 'inicio'; S.p = st.p || {}; render(true);
+});
+async function copiar(txt){ try { await navigator.clipboard.writeText(txt); toast('Copiado'); } catch(e){ prompt('Copia este texto:', txt); } }
+
+const A = {
+  /* ingreso */
+  authTab(v){ S.authTab = v; S.authErr = ''; render(true); },
+  async login(){
+    const e = (S.form.email||'').trim(), p = S.form.pass||'';
+    if (!e || !p) { S.authErr = 'Escribe tu correo y contraseña.'; return render(true); }
+    S.authBusy = true; S.authErr = ''; render(true);
+    try { await api.signIn(e, p); S.form = {}; } catch(err){ S.authErr = errMsg(err); }
+    S.authBusy = false; render(true);
+  },
+  async olvide(){
+    const e = (S.form.email||'').trim(); if (!e) { S.authErr = 'Escribe tu correo arriba y vuelve a tocar "Olvidé mi contraseña".'; return render(true); }
+    try { await api.reset(e); toast(DEMO ? 'En la demo no se envían correos.' : 'Te enviamos un correo para crear una nueva contraseña.', 4000); } catch(err){ S.authErr = errMsg(err); render(true); }
+  },
+  async validarCodigo(){
+    const c = (S.form.codigo||'').trim().toUpperCase().replace(/\s/g,'');
+    if (c.length < 6) { S.authErr = 'Revisa el código.'; return render(true); }
+    S.authBusy = true; S.authErr = ''; render(true);
+    try {
+      const inv = await api.get('invitaciones/' + c);
+      if (!inv || !inv.activa) S.authErr = 'Ese código no existe o fue desactivado.';
+      else if (Date.now() > inv.expira) S.authErr = `Ese código venció. Pídele uno nuevo a ${CFG.nombrePila}.`;
+      else S.joinFam = {codigo:c, nombreFamilia:inv.nombreFamilia, familiaId:inv.familiaId};
+    } catch(err){ S.authErr = errMsg(err); }
+    S.authBusy = false; render(true);
+  },
+  cambiarCodigo(){ S.joinFam = null; render(true); },
+  async registrar(){
+    const e = (S.form.email||'').trim(), p = S.form.pass||'';
+    if (!e || !p) { S.authErr = 'Completa correo y contraseña.'; return render(true); }
+    if (p !== S.form.pass2) { S.authErr = 'Las contraseñas no coinciden.'; return render(true); }
+    S.authBusy = true; S.authErr = ''; render(true);
+    sessionStorage.setItem('cultiva-codigo', S.joinFam.codigo);
+    try { await api.signUp(e, p); S.joinFam = null; S.form = {correo:e}; S.ob = 1; }
+    catch(err){ sessionStorage.removeItem('cultiva-codigo'); S.authErr = errMsg(err); }
+    S.authBusy = false; render(true);
+  },
+  async unirConCodigo(){
+    const c = (S.form.codigo||'').trim().toUpperCase().replace(/\s/g,'');
+    S.authErr = '';
+    try {
+      const inv = await api.get('invitaciones/' + c);
+      if (!inv || !inv.activa || Date.now() > inv.expira) { S.authErr = 'El código no es válido o venció.'; return render(true); }
+      sessionStorage.setItem('cultiva-codigo', c); S.form = {}; afterAuth(S.user);
+    } catch(err){ S.authErr = errMsg(err); render(true); }
+  },
+  async salir(){ S.form = {}; S.view = 'inicio'; S.pfid = null; S.modal = null; S.authTab = 'login'; await api.signOut(); },
+  demoReset(){ if (confirm('¿Borrar los cambios y volver a los datos de ejemplo?')) api.reiniciar(); },
+  demoComo(uid){ S.form = {}; api.entrarComo(uid); },
+  demoCodigo(){ S.authTab = 'codigo'; S.form = {codigo:'DEMO2026'}; S.joinFam = null; S.authErr = ''; render(true); },
+
+  /* primera vez */
+  aceptar(){
+    if (!S.form.acepto) return;
+    const m = me() || {};
+    w(api.set(`familias/${S.fid}/adultos/${S.user.uid}`, {consentimiento: Date.now(), correo: m.correo || S.user.email}, true));
+    S.form = Object.assign({correo:S.user.email}, pick(m, ADULTO_F)); if (!S.form.correo) S.form.correo = S.user.email;
+    if (DEMO) return; render(true);
+  },
+  guardarAdulto(v){
+    const d = pick(S.form, ADULTO_F);
+    if (!d.nombre) return toast('Falta tu nombre');
+    if (!d.parentesco) return toast('Elige el parentesco');
+    d.actualizado = Date.now();
+    const nuevo = !(me() && me().nombre);
+    w(api.set(`familias/${S.fid}/adultos/${S.user.uid}`, d, true));
+    if (nuevo) marcarActividad(`${d.nombre} se unió a la familia`);
+    S.form = {};
+    if (v === 'ob') { if (DEMO) return; return render(true); }
+    toast('Guardado'); history.back();
+  },
+  nuevoHijo(){ S.form = {}; go('hijo-form', {}); },
+  editarHijo(id){ const h = hijo(id); S.form = pick(h, HIJO_F); go('hijo-form', {id}); },
+  guardarHijo(v){
+    const d = pick(S.form, HIJO_F);
+    if (!d.nombre) return toast('Falta el nombre');
+    const id = S.p.id || api.newId();
+    if (!S.p.id) { d.creado = Date.now(); d.orden = S.hijos.length + 1; marcarActividad(`Agregaron a ${d.nombre}`); }
+    d.actualizado = Date.now();
+    w(api.set(`familias/${S.fid}/hijos/${id}`, d, true));
+    S.form = {};
+    if (v === 'ob') { S.ob = 'hijos'; S.view = 'inicio'; if (DEMO) return; return render(true); }
+    toast('Guardado'); history.back();
+  },
+  terminarOb(){ S.ob = 1; S.view = 'inicio'; render(true); },
+
+  /* navegación familia */
+  tab(v){ S.view = v; S.p = {}; if (v !== 'registros' && v !== 'reportes') S.filtroHijo = 'todos'; history.replaceState({v}, ''); render(true); window.scrollTo(0,0); },
+  back(){ history.back(); },
+  filtro(v){ S.filtroHijo = v; render(true); },
+  filtroPC(){ S.filtroHijo = 'pc'; A.tab('registros'); S.filtroHijo = 'pc'; render(true); },
+  verHijoReg(id){ S.view = 'registros'; S.filtroHijo = id; history.replaceState({v:'registros'}, ''); render(true); window.scrollTo(0,0); },
+
+  /* registros */
+  nuevoRegistro(tipo){
+    const hs = hijosOrd();
+    const borr = ls.get('cultiva-borrador-reg-' + S.user.uid, null);
+    if (borr && borr.tipo === tipo && confirm('Tienes un registro sin guardar. ¿Quieres seguir con ese?')) S.form = borr;
+    else { ls.del('cultiva-borrador-reg-' + S.user.uid); S.form = {tipo, hijoId: (hs.length === 1 ? hs[0].id : (hijo(S.filtroHijo) ? S.filtroHijo : '')), categorias:[], fechaTxt: toLocal(Date.now())}; }
+    go('registro-form', {});
+  },
+  verRegistro(id){ go('registro', {id}); },
+  editarRegistro(id){ const c = S.conductas.find(x => x.id === id); S.form = Object.assign({}, c, {categorias:(c.categorias||[]).slice(), fechaTxt: toLocal(c.fecha)}); go('registro-form', {id}); },
+  regTipo(v){ if (S.form.tipo !== v) { S.form.tipo = v; S.form.categorias = []; } render(true); },
+  intens(v){ v = +v; S.form.intensidad = S.form.intensidad === v ? null : v; saveDraft(); render(true); },
+  guardarRegistro(){
+    const f = S.form;
+    if (!f.hijoId) return toast('Elige a quién corresponde');
+    if (!(f.categorias||[]).length && !(f.descripcion||'').trim()) return toast('Marca qué pasó o escribe una descripción');
+    const d = {hijoId:f.hijoId, tipo:f.tipo, categorias:f.categorias||[], catOtra:(f.categorias||[]).includes('Otra') ? (f.catOtra||'').trim() : '',
+      fecha: fromLocal(f.fechaTxt) || Date.now(), intensidad: f.tipo==='positiva' ? null : (f.intensidad||null),
+      duracion: f.tipo==='positiva' ? '' : (f.duracion||''), lugar: f.tipo==='positiva' ? '' : (f.lugar||''),
+      antes:(f.antes||'').trim(), descripcion:(f.descripcion||'').trim(), reaccion:(f.reaccion||'').trim(), resultado:(f.resultado||'').trim(), notas:(f.notas||'').trim()};
+    const h = hijo(f.hijoId);
+    if (S.p.id) { d.editado = Date.now(); w(api.update(`familias/${S.fid}/conductas/${S.p.id}`, d)); }
+    else {
+      Object.assign(d, {autorUid:S.user.uid, autorNombre:primerNombre(miNombre()), creado:Date.now()});
+      const id = api.newId(); w(api.set(`familias/${S.fid}/conductas/${id}`, d));
+      marcarActividad(`${primerNombre(miNombre())} registró ${f.tipo==='positiva'?'algo bueno':'una conducta'} de ${h?.nombre||''}`);
+    }
+    ls.del('cultiva-borrador-reg-' + S.user.uid);
+    S.form = {}; toast(S.online ? 'Guardado' : 'Guardado. Se enviará cuando haya señal.');
+    history.back();
+  },
+  borrarRegistro(){ if (!confirm('¿Eliminar este registro?')) return; w(api.del(`familias/${S.fid}/conductas/${S.p.id}`)); S.form = {}; history.go(S.view==='registro-form'?-2:-1); },
+
+  /* chips genéricos */
+  chip1(v, t){ const f = t.dataset.f; S.form[f] = v; saveDraft(); render(true); },
+  chipM(v, t){ const f = t.dataset.f; const a = S.form[f] = (S.form[f]||[]).slice(); const i = a.indexOf(v); i >= 0 ? a.splice(i,1) : a.push(v); saveDraft(); render(true); },
+
+  /* preguntas */
+  pregTab(v){ S.pregTab = v; render(true); },
+  enviarPreg(){
+    const t = (S.form.pregTexto||'').trim(); if (!t) return toast('Escribe la pregunta');
+    if (S.p.editPreg) { w(api.update(`familias/${S.fid}/preguntas/${S.p.editPreg}`, {texto:t, hijoId:S.form.pregHijo||'', importante:!!S.form.pregImp, editado:Date.now()}), 'Pregunta actualizada'); S.p = {}; }
+    else {
+      const id = api.newId();
+      w(api.set(`familias/${S.fid}/preguntas/${id}`, {texto:t, hijoId:S.form.pregHijo||'', importante:!!S.form.pregImp, estado:'pendiente', autorUid:S.user.uid, autorNombre:primerNombre(miNombre()), creado:Date.now()}), S.online ? 'Pregunta enviada' : 'Guardada. Se enviará cuando haya señal.');
+      marcarActividad(`${primerNombre(miNombre())} hizo una pregunta`);
+    }
+    S.form.pregTexto = ''; S.form.pregImp = false; S.pregTab = 'pendientes'; render(true);
+  },
+  editarPreg(id){ const p = S.preguntas.find(x => x.id === id); S.form.pregTexto = p.texto; S.form.pregHijo = p.hijoId; S.form.pregImp = !!p.importante; S.p = {editPreg:id}; render(true); window.scrollTo(0,0); },
+  cancelarPreg(){ S.p = {}; S.form.pregTexto = ''; S.form.pregImp = false; render(true); },
+  borrarPreg(id){ if (confirm('¿Eliminar esta pregunta?')) w(api.del(`familias/${S.fid}/preguntas/${id}`)); },
+
+  /* reportes (familia) */
+  verReporte(id){ const L = leidos(); if (!L.includes(id)) { L.push(id); ls.set('cultiva-leidos', L); } go('reporte', {id}); },
+
+  /* familia */
+  editarAdulto(){ S.form = pick(me()||{}, ADULTO_F); go('adulto-form', {}); },
+  copiarInv(){ copiar(mensajeInvitacion(S.fam.codigo, S.fam.nombre, S.fam.codigoExpira)); },
+  verConsent(){ S.modal = {tipo:'consent'}; render(true); },
+  tema(v){ ls.set('cultiva-tema', v); applyTheme(); render(true); },
+  async instalar(){ if (!deferredPrompt) return; deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; render(true); },
+
+  /* panel */
+  abrirFam(id){ openFam(id); history.pushState({p:'fam'}, ''); render(true); window.scrollTo(0,0); },
+  cerrarFam(){ unsubAll(psubs); S.pfid = null; S.fid = null; render(true); },
+  ptab(v){ S.ptab = v; S.p = {}; render(true); window.scrollTo(0,0); },
+  phijo(v){ S.phijo = v; render(true); },
+  modalNuevaFam(){ S.form = {}; S.modal = {tipo:'nuevaFam'}; render(true); setTimeout(() => { const i = document.querySelector('[data-f="nombreFamilia"]'); i && i.focus(); }, 50); },
+  cerrarModal(){ S.modal = null; render(true); },
+  cerrarModalFondo(v, t, e){ if (e.target === t) A.cerrarModal(); },
+  async crearFamilia(){
+    let nombre = (S.form.nombreFamilia||'').trim(); if (!nombre) return toast('Escribe un nombre');
+    if (!/^familia\b/i.test(nombre)) nombre = 'Familia ' + nombre;
+    const fid = api.newId(), code = genCode(), now = Date.now(), exp = now + CFG.diasInvitacion*DIA;
+    try {
+      await api.batch([
+        {op:'set', path:'familias/'+fid, data:{nombre, creada:now, ultimaActividad:now, actividadTexto:'Familia creada', codigo:code, codigoExpira:exp}},
+        {op:'set', path:'invitaciones/'+code, data:{familiaId:fid, nombreFamilia:nombre, activa:true, expira:exp, creada:now}}
+      ]);
+      S.form = {}; S.modal = {tipo:'codigo', code, nombre, exp}; openFam(fid); S.ptab = 'ficha'; render(true);
+    } catch(e){ toast(errMsg(e), 4000); }
+  },
+  copiarTexto(v){ copiar(v); },
+  copiarInvAdmin(){ const f = S.familias.find(x => x.id === S.pfid); copiar(mensajeInvitacion(f.codigo, f.nombre, f.codigoExpira)); },
+  async nuevoCodigo(){
+    const f = S.familias.find(x => x.id === S.pfid); const code = genCode(), now = Date.now(), exp = now + CFG.diasInvitacion*DIA;
+    const ops = [{op:'set', path:'invitaciones/'+code, data:{familiaId:f.id, nombreFamilia:f.nombre, activa:true, expira:exp, creada:now}}, {op:'update', path:'familias/'+f.id, data:{codigo:code, codigoExpira:exp}}];
+    if (f.codigo) ops.push({op:'set', path:'invitaciones/'+f.codigo, data:{activa:false}, merge:true});
+    try { await api.batch(ops); S.modal = {tipo:'codigo', code, nombre:f.nombre, exp}; render(true); } catch(e){ toast(errMsg(e), 4000); }
+  },
+  async desactivarCodigo(){
+    const f = S.familias.find(x => x.id === S.pfid);
+    if (!confirm('Nadie más podrá unirse con este código. Las cuentas ya creadas siguen funcionando. ¿Desactivar?')) return;
+    try { await api.batch([{op:'set', path:'invitaciones/'+f.codigo, data:{activa:false}, merge:true}, {op:'update', path:'familias/'+f.id, data:{codigoExpira:0}}]); toast('Código desactivado'); } catch(e){ toast(errMsg(e), 4000); }
+  },
+  responderPreg(id){
+    const t = (S.form['resp_'+id]||'').trim(); if (!t) return toast('Escribe la respuesta');
+    w(api.update(`familias/${S.pfid}/preguntas/${id}`, {estado:'respondida', respuesta:t, respondida:Date.now()}), 'Respuesta enviada');
+    delete S.form['resp_'+id];
+  },
+  vistaPreg(id){ w(api.update(`familias/${S.pfid}/preguntas/${id}`, {estado:'vista', respondida:Date.now()}), 'Marcada como conversada'); },
+  reabrirPreg(id){ w(api.update(`familias/${S.pfid}/preguntas/${id}`, {estado:'pendiente'})); },
+  nuevoReporte(hid){
+    const key = 'cultiva-borrador-rep-' + S.pfid;
+    const borr = ls.get(key, null);
+    const vuelta = S.ptab;
+    if (borr && !borr.repId && confirm('Hay un borrador de reporte sin enviar para esta familia. ¿Seguir con ese?')) S.form = borr;
+    else { ls.del(key); S.form = {hijoId: hid || (hijosOrd()[0]||{}).id || '', fechaTxt: toLocal(Date.now())}; }
+    S.p = {vuelta}; S.ptab = 'reporte-form'; history.pushState({p:'rep'}, ''); render(true); window.scrollTo(0,0);
+  },
+  editarReporte(id){
+    const r = S.reportes.find(x => x.id === id);
+    S.form = {hijoId:r.hijoId, fechaTxt:toLocal(r.fechaSesion), trabajamos:r.trabajamos, observe:r.observe, casa:r.casa, proxTxt: r.proximaSesion ? toLocal(r.proximaSesion) : '', repId:id};
+    S.p = {repId:id, vuelta:'reportes'}; S.ptab = 'reporte-form'; history.pushState({p:'rep'}, ''); render(true); window.scrollTo(0,0);
+  },
+  async enviarReporte(){
+    const f = S.form;
+    if (!f.hijoId) return toast('Elige a qué niño/a corresponde');
+    if (!(f.trabajamos||f.observe||f.casa||'').trim()) return toast('El reporte está vacío');
+    const d = {hijoId:f.hijoId, fechaSesion: fromLocal(f.fechaTxt) || Date.now(), trabajamos:(f.trabajamos||'').trim(), observe:(f.observe||'').trim(), casa:(f.casa||'').trim(), proximaSesion: fromLocal(f.proxTxt), autorNombre: CFG.psicologa};
+    const id = S.p.repId || api.newId();
+    if (!S.p.repId) d.enviado = Date.now(); else d.editado = Date.now();
+    try { await api.set(`familias/${S.pfid}/reportes/${id}`, d, true); } catch(e){ return toast(errMsg(e), 4000); }
+    ls.del('cultiva-borrador-rep-' + S.pfid);
+    toast(S.p.repId ? 'Reporte actualizado' : 'Reporte enviado a la familia');
+    S.form = {}; S.ptab = S.p.vuelta === 'preparar' ? 'preparar' : 'reportes'; S.p = {}; render(true);
+  },
+  async borrarReporte(){ if (!confirm('¿Eliminar este reporte? La familia dejará de verlo.')) return; try { await api.del(`familias/${S.pfid}/reportes/${S.p.repId}`); } catch(e){ return toast(errMsg(e)); } S.form = {}; S.p = {}; S.ptab = 'reportes'; render(true); }
+};
+
+function saveDraft(){
+  if (!S.user) return;
+  if (S.role === 'padre' && S.view === 'registro-form' && !S.p.id) ls.set('cultiva-borrador-reg-' + S.user.uid, S.form);
+  if (S.role === 'admin' && S.ptab === 'reporte-form' && !S.p.repId) ls.set('cultiva-borrador-rep-' + S.pfid, S.form);
+}
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-a]'); if (!t || t.tagName === 'INPUT') return;
+  if (t.tagName === 'A') return;
+  e.preventDefault();
+  const fn = A[t.dataset.a]; if (fn) fn(t.dataset.v, t, e);
+});
+document.addEventListener('input', e => {
+  const t = e.target, f = t.dataset && t.dataset.f; if (!f) return;
+  if (f === '__buscar') { S.buscar = t.value; const pos = t.selectionStart; render(true); const n = document.querySelector('[data-f="__buscar"]'); if (n) { n.focus(); n.setSelectionRange(pos,pos); } return; }
+  S.form[f] = t.type === 'checkbox' ? t.checked : t.value;
+  if (t.type === 'checkbox') render(true);
+  saveDraft();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.tagName === 'INPUT' && !S.user) { e.preventDefault(); S.authTab === 'login' ? A.login() : S.joinFam ? A.registrar() : A.validarCodigo(); }
+  if (e.key === 'Escape' && S.modal) A.cerrarModal();
+});
+window.addEventListener('online', () => { S.online = true; render(); });
+window.addEventListener('offline', () => { S.online = false; render(); });
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
+
+function applyTheme(){ const t = ls.get('cultiva-tema','auto'); if (t === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t); }
+
+history.replaceState({v:'inicio'}, '');
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+start();
+</script>
+</body>
+</html>
