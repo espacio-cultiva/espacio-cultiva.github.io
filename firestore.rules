@@ -62,6 +62,11 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Registro maestro de cada recurso (con la lista de familias a las que va): solo la psicóloga.
+    match /recursosAdmin/{id} {
+      allow read, write: if isAdmin();
+    }
+
     match /familias/{fid} {
       allow read: if isAdmin() || isMember(fid);
       allow create, delete: if isAdmin();

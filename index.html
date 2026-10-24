@@ -418,7 +418,7 @@ const S = {
   view:'inicio', p:{}, form:{}, modal:null, ob:1,
   fid:null, fam:null, adultos:[], hijos:[], conductas:[], preguntas:[], reportes:[], got:{},
   filtroHijo:'todos', pregTab:'pendientes',
-  familias:[], verArch:false, pfid:null, pview:null, recG:[], recF:[], recCat:'todos', recNuevos:[], ptab:'preparar', phijo:null, buscar:'',
+  familias:[], verArch:false, pfid:null, pview:null, recG:[], recF:[], recM:[], recCat:'todos', recNuevos:[], ptab:'preparar', phijo:null, buscar:'',
   online:navigator.onLine
 };
 let subs = [], psubs = [], pendingRender = false, deferredPrompt = null;
@@ -848,9 +848,9 @@ function recCard(r, admin){
   const inner = `<div class="row top"><div class="av sm" style="background:var(--tea-l);color:var(--tea-d)">${I('link').replace('class="i"','class="i" style="width:16px;height:16px"')}</div><div style="flex:1;min-width:0">
     <div class="row wrapf" style="gap:6px"><b>${esc(r.titulo)}</b>${nuevo?'<span class="tag s">Nuevo</span>':''}</div>
     ${r.descripcion?`<div class="small muted" style="margin-top:3px">${esc(r.descripcion)}</div>`:''}
-    <div class="row wrapf" style="gap:6px;margin-top:8px">${r.categoria?`<span class="tag t">${esc(r.categoria)}</span>`:''}${r.soloFam?`<span class="tag p">${admin?'Solo esta familia':'Solo para ustedes'}</span>`:''}<span class="tiny">${esc(dominio(r.url))}</span></div>
+    <div class="row wrapf" style="gap:6px;margin-top:8px">${r.categoria?`<span class="tag t">${esc(r.categoria)}</span>`:''}${admin ? `<span class="tag p">Para: ${esc(paraTexto(r.para))}</span>` : (r.soloFam?'<span class="tag p">Elegido para ustedes</span>':'')}<span class="tiny">${esc(dominio(r.url))}</span></div>
     </div></div>`;
-  if (admin) return `<div class="card">${inner}<div class="row" style="margin-top:10px;gap:16px"><a class="link" href="${esc(r.url)}" target="_blank" rel="noopener" style="text-decoration:none">Abrir</a><button class="link" data-a="editarRecurso" data-v="${r.id}" data-f="${r.soloFam?'fam':'gen'}">Editar</button></div></div>`;
+  if (admin) return `<div class="card">${inner}<div class="row" style="margin-top:10px;gap:16px"><a class="link" href="${esc(r.url)}" target="_blank" rel="noopener" style="text-decoration:none">Abrir</a><button class="link" data-a="editarRecurso" data-v="${r.id}">Editar</button></div></div>`;
   return `<a class="card tap" href="${esc(r.url)}" target="_blank" rel="noopener" style="display:block;color:inherit;text-decoration:none">${inner}</a>`;
 }
 function pRecursos(){
@@ -895,6 +895,8 @@ function mensajeInvitacion(code, nombre, exp){
    ========================================================= */
 function startPanel(){
   subs.push(api.listen('recursos', d => { S.recG = d.sort((a,b) => (b.creado||0)-(a.creado||0)); render(); }, e => toast(errMsg(e), 4000)));
+  // Registro maestro de cada recurso con la lista de familias a las que va (solo lo lee la psicóloga).
+  subs.push(api.listen('recursosAdmin', d => { S.recM = d; render(); }, e => console.warn(e)));
   subs.push(api.listen('familias', d => { S.familias = d.sort((a,b) => (b.ultimaActividad||0)-(a.ultimaActividad||0)); render(); }, e => toast(errMsg(e), 4000)));
   render(true);
 }
@@ -924,7 +926,7 @@ function viewPanel(){
   const arch = S.familias.filter(f => f.estado === 'bloqueada' && match(f));
   const abiertas = S.verArch || !!q || arch.some(f => f.id === S.pfid);
   const side = `<div class="p-side ${S.pfid||S.pview?'p-hide-m':''}">
-    <div class="fam-it${S.pview==='recursos'?' on':''}" data-a="abrirBiblio" style="margin:4px 0 14px"><div class="av" style="background:var(--tea-l);color:var(--tea-d)">${I('libro')}</div><div style="flex:1"><div class="n">Biblioteca de recursos</div><div class="tiny">${S.recG.length} para todas las familias</div></div></div>
+    <div class="fam-it${S.pview==='recursos'?' on':''}" data-a="abrirBiblio" style="margin:4px 0 14px"><div class="av" style="background:var(--tea-l);color:var(--tea-d)">${I('libro')}</div><div style="flex:1"><div class="n">Biblioteca de recursos</div><div class="tiny">${(n => n === 1 ? '1 recurso compartido' : n + ' recursos compartidos')(recAdmin().length)}</div></div></div>
     <div class="row" style="margin:6px 0 12px"><h2 style="margin:0">Familias</h2><div class="sp"></div><button class="btn sm" data-a="modalNuevaFam">${I('plus')} Nueva</button></div>
     <input class="in" data-f="__buscar" placeholder="Buscar familia…" value="${esc(S.buscar)}" style="margin-bottom:10px">
     ${fams.map(f => famItem(f, vistos)).join('') || (arch.length ? '<p class="muted small">No hay familias activas.</p>' : '<p class="muted small">Aún no hay familias. Crea la primera con "Nueva".</p>')}
@@ -1027,15 +1029,30 @@ function adminReporteForm(){
     <div class="stack" style="margin-top:12px"><button class="btn full" data-a="enviarReporte">${S.p.repId?'Guardar cambios':'Enviar a la familia'}</button>
     ${S.p.repId?'<button class="btn ghost full danger" data-a="borrarReporte">Eliminar reporte</button>':''}</div>`;
 }
+// Recursos vistos por la psicóloga: registros maestros + recursos antiguos sin registro maestro.
+function recAdmin(){
+  const ids = new Set(S.recM.map(r => r.id));
+  const legG = S.recG.filter(r => !ids.has(r.id)).map(r => Object.assign({}, r, {para:['todas'], legacy:true}));
+  const legF = S.pfid ? S.recF.filter(r => !ids.has(r.id)).map(r => Object.assign({}, r, {para:[S.pfid], legacy:true})) : [];
+  return S.recM.concat(legG, legF).sort((a,b) => (b.creado||0)-(a.creado||0));
+}
+function paraTexto(para){
+  para = para || [];
+  if (para.includes('todas')) return 'Todas las familias';
+  const ns = para.map(fid => (S.familias.find(f => f.id === fid) || {}).nombre || 'familia eliminada').map(n => n.replace(/^Familia\s+/i, ''));
+  return ns.length ? (ns.length === 1 ? 'Familia ' : 'Familias ') + ns.join(', ') : 'nadie';
+}
 function panelBiblio(){
-  return `<div class="p-main"><div style="padding-top:14px"><h1>Biblioteca de recursos</h1><p class="small muted">Links que ven todas las familias con acceso activo. Para compartir algo con una sola familia, hazlo desde la pestaña Recursos de esa familia.</p></div>
-    <button class="btn full" data-a="nuevoRecurso" data-v="todas" style="margin:6px 0 14px">${I('plus')} Agregar recurso</button>
-    ${S.recG.map(r => recCard(r, true)).join('') || '<p class="muted">Aún no hay recursos. Agrega links a guías, videos o material en Drive.</p>'}</div>`;
+  const list = recAdmin();
+  return `<div class="p-main"><div style="padding-top:14px"><h1>Biblioteca de recursos</h1><p class="small muted">Todos los links que has compartido. En cada uno eliges si lo ven todas las familias o solo algunas.</p></div>
+    <button class="btn full" data-a="nuevoRecurso" style="margin:6px 0 14px">${I('plus')} Agregar recurso</button>
+    ${list.map(r => recCard(r, true)).join('') || '<p class="muted">Aún no hay recursos. Agrega links a guías, videos o material en Drive.</p>'}</div>`;
 }
 function aRecursos(){
-  return `<button class="btn full" data-a="nuevoRecurso" data-v="${S.pfid}" style="margin-bottom:14px">${I('plus')} Recurso solo para esta familia</button>
-    ${S.recF.map(r => recCard(r, true)).join('') || '<p class="muted small">No hay recursos exclusivos para esta familia.</p>'}
-    <p class="small muted" style="margin-top:14px">Además ven los ${S.recG.length} recursos de la <button class="link" data-a="abrirBiblio">biblioteca general</button>.</p>`;
+  const list = recAdmin(), mios = list.filter(r => (r.para||[]).includes(S.pfid)), gen = list.filter(r => (r.para||[]).includes('todas'));
+  return `<button class="btn full" data-a="nuevoRecurso" data-v="${S.pfid}" style="margin-bottom:14px">${I('plus')} Compartir recurso con esta familia</button>
+    ${mios.map(r => recCard(r, true)).join('') || '<p class="muted small">No hay recursos elegidos especialmente para esta familia.</p>'}
+    <p class="small muted" style="margin-top:14px">Además ven los ${gen.length} recursos para todas las familias de la <button class="link" data-a="abrirBiblio">biblioteca</button>.</p>`;
 }
 function aFicha(){
   const fam = S.familias.find(f => f.id === S.pfid) || {}, hs = hijosOrd();
@@ -1068,13 +1085,16 @@ function viewModal(){
   else if (m.tipo === 'codigo') h = `<h2>${esc(m.nombre)}</h2><p class="small muted">Comparte este código con la familia:</p><div class="code">${esc(m.code)}</div>
     <div class="row wrapf" style="margin-top:14px"><button class="btn sm sec2" data-a="copiarTexto" data-v="${esc(mensajeInvitacion(m.code, m.nombre, m.exp))}">${I('copiar')} Copiar mensaje</button><a class="btn sm teal" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(mensajeInvitacion(m.code, m.nombre, m.exp))}">${I('wsp')} WhatsApp</a><div class="sp"></div><button class="btn sm" data-a="cerrarModal">Listo</button></div>`;
   else if (m.tipo === 'recurso'){
-    const fam = S.familias.find(f => f.id === S.pfid);
+    const sel = S.form.para || [], todas = sel.includes('todas');
+    const fams = S.familias.filter(f => f.estado !== 'bloqueada' || sel.includes(f.id)).slice().sort((a,b) => (a.nombre||'').localeCompare(b.nombre||'', 'es'));
     h = `<h2>${m.id?'Editar recurso':'Nuevo recurso'}</h2>
     ${inp('titulo','Título',{ph:'Ej: Guía para la hora de dormir'})}
     ${inp('url','Link',{type:'url', im:'url', ph:'https://…', help:'Si es de Google Drive, compártelo como "cualquier persona con el enlace".'})}
     ${inp('descripcion','Descripción',{opt:1, area:1, ph:'Para qué sirve o cuándo usarlo.'})}
     <label class="f">Tema</label>${chipsSel('categoria', CAT_REC, false, true)}
-    <label class="f">¿Quién lo ve?</label><div class="chips"><button class="chip${S.form.para==='todas'?' on':''}" data-a="chip1" data-f="para" data-v="todas">Todas las familias</button>${fam?`<button class="chip${S.form.para===fam.id?' on':''}" data-a="chip1" data-f="para" data-v="${fam.id}">Solo ${esc(fam.nombre)}</button>`:''}</div>
+    <label class="f">¿Quién lo ve?</label><div class="help">"Para todas" incluye también a las familias que agregues más adelante.</div>
+    <div class="chips"><button class="chip${todas?' on t':''}" data-a="paraToggle" data-v="todas">Para todas las familias</button></div>
+    <div class="chips" style="margin-top:8px">${fams.map(f => `<button class="chip${!todas && sel.includes(f.id)?' on':''}" data-a="paraToggle" data-v="${f.id}">${!todas && sel.includes(f.id)?'✓ ':''}${esc((f.nombre||'').replace(/^Familia\s+/i,''))}</button>`).join('') || '<span class="small muted">Aún no hay familias.</span>'}</div>
     <div class="row wrapf" style="margin-top:20px;gap:8px">${m.id?'<button class="btn ghost sm danger" data-a="borrarRecurso">Eliminar</button>':''}<div class="sp"></div><button class="btn ghost sm" data-a="cerrarModal">Cancelar</button><button class="btn sm" data-a="guardarRecurso">Guardar</button></div>`;
   }
   else if (m.tipo === 'bloquear') h = `<h2>Cerrar acceso</h2>
@@ -1264,12 +1284,17 @@ const A = {
   cerrarFam(){ unsubAll(psubs); S.pfid = null; S.fid = null; S.pview = null; render(true); },
   abrirBiblio(){ unsubAll(psubs); S.pfid = null; S.fid = null; S.pview = 'recursos'; history.pushState({p:'bib'}, ''); render(true); window.scrollTo(0,0); },
   recCat(v){ S.recCat = v; render(true); },
-  nuevoRecurso(para){ S.form = {para: para || 'todas', categoria:''}; S.modal = {tipo:'recurso'}; render(true); },
-  editarRecurso(id, t){
-    const fam = t.dataset.f === 'fam', r = (fam ? S.recF : S.recG).find(x => x.id === id);
-    const para = fam ? S.pfid : 'todas';
-    S.form = {titulo:r.titulo, url:r.url, descripcion:r.descripcion||'', categoria:r.categoria||'', para};
-    S.modal = {tipo:'recurso', id, para0:para, creado:r.creado}; render(true);
+  nuevoRecurso(fid){ S.form = {para: fid ? [fid] : ['todas'], categoria:''}; S.modal = {tipo:'recurso'}; render(true); },
+  editarRecurso(id){
+    const r = recAdmin().find(x => x.id === id); if (!r) return;
+    S.form = {titulo:r.titulo, url:r.url, descripcion:r.descripcion||'', categoria:r.categoria||'', para:(r.para||['todas']).slice()};
+    S.modal = {tipo:'recurso', id, para0:(r.para||[]).slice(), creado:r.creado}; render(true);
+  },
+  paraToggle(v){
+    let sel = (S.form.para || []).filter(x => x !== 'todas');
+    if (v === 'todas') sel = (S.form.para || []).includes('todas') ? [] : ['todas'];
+    else sel = sel.includes(v) ? sel.filter(x => x !== v) : sel.concat(v);
+    S.form.para = sel; render(true);
   },
   async guardarRecurso(){
     const f = S.form, m = S.modal;
@@ -1278,19 +1303,25 @@ const A = {
     if (!url) return toast('Falta el link');
     if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
     try { new URL(url); } catch(e){ return toast('Revisa el link, no parece válido'); }
-    const para = f.para || 'todas';
+    const para = (f.para || []).includes('todas') ? ['todas'] : (f.para || []);
+    if (!para.length) return toast('Elige para quién es: todas o al menos una familia');
     const ruta = p => (p === 'todas' ? 'recursos/' : `familias/${p}/recursos/`);
-    const id = m.id || api.newId();
-    const d = {titulo, url, descripcion:(f.descripcion||'').trim(), categoria:f.categoria||'', creado: m.creado || Date.now(), actualizado: Date.now()};
-    const ops = [{op:'set', path: ruta(para) + id, data:d}];
-    if (m.id && m.para0 !== para) ops.push({op:'delete', path: ruta(m.para0) + m.id});
+    const id = m.id || api.newId(), now = Date.now();
+    const d = {titulo, url, descripcion:(f.descripcion||'').trim(), categoria:f.categoria||'', creado: m.creado || now, actualizado: now};
+    // Un registro maestro (con la lista de familias) y una copia donde cada familia la puede leer.
+    const ops = [{op:'set', path:'recursosAdmin/' + id, data:Object.assign({para}, d)}];
+    para.forEach(p => ops.push({op:'set', path: ruta(p) + id, data:d}));
+    (m.para0 || []).filter(p => !para.includes(p)).forEach(p => ops.push({op:'delete', path: ruta(p) + id}));
     try { await api.batch(ops); } catch(e){ return toast(errMsg(e), 4000); }
-    if (para !== 'todas' && !m.id){ api.update('familias/' + para, {ultimaActividad: Date.now(), actividadTexto:'Compartiste un recurso'}).catch(() => {}); }
+    const nuevas = para.filter(p => p !== 'todas' && !(m.para0 || []).includes(p));
+    nuevas.forEach(fid => api.update('familias/' + fid, {ultimaActividad: now, actividadTexto:'Compartiste un recurso'}).catch(() => {}));
     S.modal = null; S.form = {}; toast(m.id ? 'Recurso actualizado' : 'Recurso compartido'); render(true);
   },
   async borrarRecurso(){
     const m = S.modal; if (!confirm('¿Eliminar este recurso? Las familias dejarán de verlo.')) return;
-    try { await api.del((m.para0 === 'todas' ? 'recursos/' : `familias/${m.para0}/recursos/`) + m.id); } catch(e){ return toast(errMsg(e), 4000); }
+    const ruta = p => (p === 'todas' ? 'recursos/' : `familias/${p}/recursos/`);
+    const ops = [{op:'delete', path:'recursosAdmin/' + m.id}].concat((m.para0 || []).map(p => ({op:'delete', path: ruta(p) + m.id})));
+    try { await api.batch(ops); } catch(e){ return toast(errMsg(e), 4000); }
     S.modal = null; S.form = {}; toast('Recurso eliminado'); render(true);
   },
   toggleArch(){ S.verArch = !S.verArch; render(true); },

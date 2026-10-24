@@ -73,8 +73,9 @@ git add . && git commit -m "Activar Firebase" && git push
 
 ## Recursos (links)
 
-- **Biblioteca de recursos** (arriba en el panel): links que ven todas las familias con acceso abierto.
-- **Pestaña Recursos de cada familia:** links solo para esa familia.
+- **Biblioteca de recursos** (arriba en el panel): todos los links compartidos. En cada uno se elige "Para todas las familias" o una o varias familias.
+- **Pestaña Recursos de cada familia:** muestra lo que se eligió para esa familia y permite compartir uno nuevo con ella.
+- Técnicamente: `recursosAdmin/{id}` guarda el recurso con su lista de familias (solo la psicóloga lo lee) y se copia a `recursos/{id}` (todas) o a `familias/{fid}/recursos/{id}` (cada familia elegida).
 - Las familias los ven en la pestaña **Recursos**, con filtro por tema y aviso de "Nuevo".
 - Se guardan solo título, link, descripción y tema, así que caben de sobra en el plan gratis. Los archivos (Drive, YouTube, etc.) viven donde estén alojados. Si son de Drive, deben estar compartidos como "cualquier persona con el enlace".
 - Los temas se editan en `CAT_REC` dentro de `index.html`.
