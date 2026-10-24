@@ -252,6 +252,8 @@ const LUGARES = ['Casa','Colegio o jardín','Auto o traslado','Casa de familiare
 const DURACION = ['Menos de 5 min','5 a 15 min','15 a 30 min','Más de 30 min'];
 const INTENS = ['','Leve','Algo fuerte','Fuerte','Muy fuerte','Desbordado/a'];
 const PARENTESCO = ['Madre','Padre','Tutor/a legal','Abuela/o','Otro'];
+const REGIONES = ['Arica y Parinacota','Tarapacá','Antofagasta','Atacama','Coquimbo','Valparaíso','Metropolitana de Santiago',"Libertador Gral. Bernardo O'Higgins",'Maule','Ñuble','Biobío','La Araucanía','Los Ríos','Los Lagos','Aysén','Magallanes y la Antártica Chilena'];
+const ESPECIALIDADES = ['Psiquiatra infantil','Neurólogo/a','Pediatra','Fonoaudiólogo/a','Terapeuta ocupacional','Psicopedagogo/a','Educador/a diferencial','Kinesiólogo/a','Nutricionista','Otro/a'];
 const CAT_REC = ['Emociones','Rabietas y límites','Sueño','Alimentación','Colegio','Pantallas','Juego y vínculo','Crianza','Otro'];
 
 /* ---------- Utilidades ---------- */
@@ -641,15 +643,31 @@ function hijoForm(){
   return inp('nombre','Nombre') + inp('apellidos','Apellidos') +
     inp('fechaNac','Fecha de nacimiento',{type:'date'}) +
     `<div class="row" style="gap:10px"><div style="flex:1">${inp('curso','Curso',{ph:'Ej: 2° básico'})}</div><div style="flex:1.4">${inp('colegio','Colegio o jardín')}</div></div>` +
+    `<div class="row" style="gap:10px;align-items:flex-start"><div style="flex:1.3"><label class="f">Región</label><select class="in" data-f="region"><option value="">Elegir…</option>${REGIONES.map(r => `<option${S.form.region===r?' selected':''}>${esc(r)}</option>`).join('')}</select></div><div style="flex:1">${inp('comuna','Comuna',{opt:1})}</div></div>` +
     inp('viveCon','¿Con quién vive?') +
     inp('hermanos','Hermanos y edades',{opt:1}) +
     inp('motivo','¿Qué les gustaría trabajar o qué les preocupa?',{area:1, ph:'Con sus palabras, como se lo contarían a la psicóloga.'}) +
     inp('gustos','¿Qué le gusta y qué lo/la calma?',{opt:1, area:1}) +
     inp('salud','Salud: diagnósticos, medicamentos o alergias',{opt:1, area:1}) +
-    inp('otros','Otros profesionales que lo/la atienden',{opt:1, ph:'Ej: fonoaudióloga, neuróloga…'});
+    profesionalesForm();
 }
+function profesionalesForm(){
+  const ps = S.form.profesionales || [];
+  return `<label class="f">Otros profesionales que lo/la atienden <span class="opt">(opcional)</span></label>
+    <div class="help">Así ${esc(CFG.nombrePila)} puede coordinarse con ellos si hace falta.</div>
+    <datalist id="esp-list">${ESPECIALIDADES.map(e => `<option value="${esc(e)}">`).join('')}</datalist>
+    ${ps.map((pr, i) => `<div class="card" style="padding:12px;margin-bottom:8px">
+      <div class="row" style="margin-bottom:8px"><b class="small" style="flex:1">Profesional ${i+1}</b><button class="link danger" data-a="delProf" data-v="${i}">Quitar</button></div>
+      <input class="in" list="esp-list" data-f="prof.${i}.esp" value="${esc(pr.esp)}" placeholder="Especialidad (ej: fonoaudióloga)" style="margin-bottom:8px">
+      <input class="in" data-f="prof.${i}.nombre" value="${esc(pr.nombre)}" placeholder="Nombre" style="margin-bottom:8px">
+      <input class="in" data-f="prof.${i}.contacto" value="${esc(pr.contacto)}" placeholder="Teléfono, correo o lugar de atención (opcional)">
+    </div>`).join('')}
+    <button class="btn ghost sm" data-a="addProf">${I('plus')} Agregar profesional</button>
+    ${S.form.otros ? `<div class="help" style="margin-top:8px">Antes escribieron: "${esc(S.form.otros)}". Pueden pasarlo a la lista de arriba.</div>` : ''}`;
+}
+const limpiarProf = ps => (ps || []).map(p => ({esp:(p.esp||'').trim(), nombre:(p.nombre||'').trim(), contacto:(p.contacto||'').trim()})).filter(p => p.esp || p.nombre || p.contacto);
 const ADULTO_F = ['nombre','apellidos','parentesco','parentescoOtro','profesion','trabajo','telefono','correo','viveCon','contacto','notas'];
-const HIJO_F = ['nombre','apellidos','fechaNac','curso','colegio','viveCon','hermanos','motivo','gustos','salud','otros'];
+const HIJO_F = ['nombre','apellidos','fechaNac','curso','colegio','region','comuna','viveCon','hermanos','motivo','gustos','salud','otros'];
 const pick = (o, ks) => { const r = {}; ks.forEach(k => r[k] = (o[k] == null ? '' : String(o[k]).trim())); return r; };
 
 function kidCard(h, action){
@@ -1031,7 +1049,7 @@ function aFicha(){
     </div>`}
     <div class="sec"><h2>Niños</h2></div>
     ${hs.map(h => `<div class="card"><div class="row" style="margin-bottom:10px">${av(h)}<div><b>${esc(h.nombre)} ${esc(h.apellidos||'')}</b><div class="small muted">${esc(edad(h.fechaNac))}${h.fechaNac?' · '+esc(new Date(h.fechaNac+'T12:00').toLocaleDateString('es-CL')):''}</div></div></div>
-      <dl class="ficha">${row('Curso',h.curso)}${row('Colegio',h.colegio)}${row('Vive con',h.viveCon)}${row('Hermanos',h.hermanos)}${row('Motivo',h.motivo)}${row('Le gusta / lo calma',h.gustos)}${row('Salud',h.salud)}${row('Otros profesionales',h.otros)}</dl></div>`).join('') || '<p class="muted small">Sin datos todavía.</p>'}
+      <dl class="ficha">${row('Curso',h.curso)}${row('Colegio',h.colegio)}${row('Vive con',h.viveCon)}${row('Hermanos',h.hermanos)}${row('Motivo',h.motivo)}${row('Le gusta / lo calma',h.gustos)}${row('Salud',h.salud)}${row('Región', [h.region, h.comuna].filter(Boolean).join(' · '))}${(h.profesionales||[]).length ? `<dt>Profesionales</dt><dd>${h.profesionales.map(p => `<div><b>${esc(p.esp||'Profesional')}</b>${p.nombre?': '+esc(p.nombre):''}${p.contacto?` <span class="muted">· ${esc(p.contacto)}</span>`:''}</div>`).join('')}</dd>` : ''}${row('Otros profesionales',h.otros)}</dl></div>`).join('') || '<p class="muted small">Sin datos todavía.</p>'}
     <div class="sec"><h2>Adultos</h2></div>
     ${S.adultos.map(a => `<div class="card"><b>${esc(a.nombre)} ${esc(a.apellidos||'')}</b> <span class="tag">${esc(a.parentesco==='Otro'?a.parentescoOtro:a.parentesco)}</span>
       <dl class="ficha" style="margin-top:10px">${row('Profesión',a.profesion)}${row('Trabajo',a.trabajo)}${row('Teléfono',a.telefono)}${row('Correo',a.correo)}${row('Vive con los niños',a.viveCon)}${row('Contacto',a.contacto)}${row('Notas',a.notas)}${row('Aceptó condiciones', a.consentimiento?new Date(a.consentimiento).toLocaleDateString('es-CL'):'')}</dl>
@@ -1154,9 +1172,11 @@ const A = {
     toast('Guardado'); history.back();
   },
   nuevoHijo(){ S.form = {}; go('hijo-form', {}); },
-  editarHijo(id){ const h = hijo(id); S.form = pick(h, HIJO_F); go('hijo-form', {id}); },
+  editarHijo(id){ const h = hijo(id); S.form = pick(h, HIJO_F); S.form.profesionales = (h.profesionales || []).map(p => Object.assign({}, p)); go('hijo-form', {id}); },
+  addProf(){ (S.form.profesionales = S.form.profesionales || []).push({esp:'', nombre:'', contacto:''}); render(true); const n = document.querySelectorAll('[data-f$=".esp"]'); n.length && n[n.length-1].focus(); },
+  delProf(i){ S.form.profesionales.splice(+i, 1); render(true); },
   guardarHijo(v){
-    const d = pick(S.form, HIJO_F);
+    const d = pick(S.form, HIJO_F); d.profesionales = limpiarProf(S.form.profesionales);
     if (!d.nombre) return toast('Falta el nombre');
     const id = S.p.id || api.newId();
     if (!S.p.id) { d.creado = Date.now(); d.orden = S.hijos.length + 1; marcarActividad(`Agregaron a ${d.nombre}`); }
@@ -1377,6 +1397,7 @@ document.addEventListener('click', e => {
 document.addEventListener('input', e => {
   const t = e.target, f = t.dataset && t.dataset.f; if (!f) return;
   if (f === '__buscar') { S.buscar = t.value; const pos = t.selectionStart; render(true); const n = document.querySelector('[data-f="__buscar"]'); if (n) { n.focus(); n.setSelectionRange(pos,pos); } return; }
+  if (f.startsWith('prof.')) { const [, i, k] = f.split('.'); S.form.profesionales[+i][k] = t.value; return; }
   S.form[f] = t.type === 'checkbox' ? t.checked : t.value;
   if (t.type === 'checkbox') render(true);
   saveDraft();

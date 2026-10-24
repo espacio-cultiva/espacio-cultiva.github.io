@@ -1,6 +1,6 @@
 // Service worker: guarda la app para usarla sin internet.
 // IMPORTANTE: subir VERSION en cada publicación para que los teléfonos se actualicen.
-const VERSION = 'cultiva-v5';
+const VERSION = 'cultiva-v6';
 const ARCHIVOS = [
   './',
   './index.html',
