@@ -1,11 +1,17 @@
 // Configuración de la app Espacio Cultiva.
-// Mientras "firebase" sea null, la app funciona en MODO DEMOSTRACIÓN
-// (datos de ejemplo guardados solo en el navegador).
+// Con "firebase: null" la app funciona en MODO DEMOSTRACIÓN (datos de ejemplo solo en el navegador).
 // Para activarla de verdad, pega aquí la configuración que entrega Firebase
 // (Configuración del proyecto > Tus apps > App web > firebaseConfig).
 
 window.CULTIVA_CONFIG = {
-  firebase: null,
+  firebase: {
+    apiKey: "AIzaSyAnFzkSBAumn356YAwLFJDLyDkcBzYNlP4",
+    authDomain: "espacio-cultiva.firebaseapp.com",
+    projectId: "espacio-cultiva",
+    storageBucket: "espacio-cultiva.firebasestorage.app",
+    messagingSenderId: "772579449276",
+    appId: "1:772579449276:web:6b5ba54eaf3bcf14f9f3b9"
+  },
   // Ejemplo de cómo debe quedar:
   // firebase: {
   //   apiKey: "AIza...",
