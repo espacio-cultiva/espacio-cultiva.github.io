@@ -71,6 +71,14 @@ git add . && git commit -m "Activar Firebase" && git push
 3. Cada adulto abre el link, toca **Tengo un código**, crea su cuenta con su correo, acepta las condiciones y completa sus datos y los de los niños.
 4. El mismo código sirve para mamá, papá o quien acompañe. Desde **Ficha** se puede desactivar o generar uno nuevo; las cuentas ya creadas siguen funcionando.
 
+## Recursos (links)
+
+- **Biblioteca de recursos** (arriba en el panel): links que ven todas las familias con acceso abierto.
+- **Pestaña Recursos de cada familia:** links solo para esa familia.
+- Las familias los ven en la pestaña **Recursos**, con filtro por tema y aviso de "Nuevo".
+- Se guardan solo título, link, descripción y tema, así que caben de sobra en el plan gratis. Los archivos (Drive, YouTube, etc.) viven donde estén alojados. Si son de Drive, deben estar compartidos como "cualquier persona con el enlace".
+- Los temas se editan en `CAT_REC` dentro de `index.html`.
+
 ## Cerrar el acceso de una familia (alta)
 
 En el panel: familia → **Ficha** → **Cerrar acceso (alta)**, con un motivo que ve solo ella.

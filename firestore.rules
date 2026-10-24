@@ -20,6 +20,12 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.familiaId == fid
         && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.get('bloqueado', false) != true;
     }
+    // Adulto con cuenta unida a alguna familia y con acceso abierto.
+    function activeMember() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/miembros/$(request.auth.uid))
+        && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.get('bloqueado', false) != true;
+    }
     function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
 
     // Cuenta de la psicóloga: se crea a mano desde la consola de Firebase.
@@ -48,6 +54,12 @@ service cloud.firestore {
       allow update: if isAdmin()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['bloqueado', 'bloqueadoEn']);
       allow delete: if isAdmin();
+    }
+
+    // Biblioteca general de recursos (links): la ven todas las familias con acceso abierto.
+    match /recursos/{id} {
+      allow read: if isAdmin() || activeMember();
+      allow write: if isAdmin();
     }
 
     match /familias/{fid} {
@@ -87,6 +99,12 @@ service cloud.firestore {
         allow update: if isAdmin()
           || (isMember(fid) && changed().hasOnly(['texto', 'hijoId', 'importante', 'editado']));
         allow delete: if isAdmin() || (isMember(fid) && resource.data.autorUid == request.auth.uid);
+      }
+
+      // Recursos solo para esta familia.
+      match /recursos/{id} {
+        allow read: if isAdmin() || isMember(fid);
+        allow write: if isAdmin();
       }
 
       // Reportes de sesión: los escribe solo la psicóloga.

@@ -239,6 +239,8 @@ const I = n => '<svg class="i" viewBox="0 0 24 24">' + ({
   wsp:'<path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/>',
   reloj:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   salir:'<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3"/>',
+  libro:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M8 7h7"/>',
+  link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   lapiz:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
   buscar:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>'
 }[n]||'') + '</svg>';
@@ -250,6 +252,7 @@ const LUGARES = ['Casa','Colegio o jardín','Auto o traslado','Casa de familiare
 const DURACION = ['Menos de 5 min','5 a 15 min','15 a 30 min','Más de 30 min'];
 const INTENS = ['','Leve','Algo fuerte','Fuerte','Muy fuerte','Desbordado/a'];
 const PARENTESCO = ['Madre','Padre','Tutor/a legal','Abuela/o','Otro'];
+const CAT_REC = ['Emociones','Rabietas y límites','Sueño','Alimentación','Colegio','Pantallas','Juego y vínculo','Crianza','Otro'];
 
 /* ---------- Utilidades ---------- */
 const $ = s => document.querySelector(s);
@@ -394,6 +397,10 @@ function demoSeed(){
     [F+'/preguntas/p1']: {hijoId:'h-tomas', texto:'¿Está bien que le quitemos la tablet por toda la semana cuando hace una rabieta, o es mejor otra cosa?', importante:true, estado:'pendiente', autorUid:'demo-carolina', autorNombre:'Carolina', creado:at(0,9,10)},
     [F+'/preguntas/p2']: {hijoId:'h-emilia', texto:'¿La dejamos pasarse a nuestra cama o la devolvemos a la suya cada vez?', estado:'pendiente', autorUid:'demo-rodrigo', autorNombre:'Rodrigo', creado:at(3,23,0)},
     [F+'/preguntas/p3']: {hijoId:'', texto:'¿Es bueno que el papá venga a alguna sesión cuando no está de turno?', estado:'respondida', respuesta:'¡Sí, me encantaría! Coordinemos para la semana que esté en casa.', respondida:d(9), autorUid:'demo-rodrigo', autorNombre:'Rodrigo', creado:d(11)},
+    'recursos/rec1': {titulo:'Cómo acompañar una rabieta', descripcion:'Guía corta con ideas para el momento de la rabieta y para después.', url:'https://www.unicef.org/parenting/es', categoria:'Rabietas y límites', creado:d(20)},
+    'recursos/rec2': {titulo:'Rutina para dormir', descripcion:'Pasos simples para armar una rutina de sueño con los niños.', url:'https://www.example.com/rutina-sueno', categoria:'Sueño', creado:d(8)},
+    'recursos/rec3': {titulo:'Video: el volcán de las emociones', descripcion:'Para ver juntos y conversar después.', url:'https://www.youtube.com/', categoria:'Emociones', creado:d(1)},
+    [F+'/recursos/rf1']: {titulo:'Reloj visual para la tablet', descripcion:'El que conversamos en sesión, para que Tomás vea cuánto tiempo le queda.', url:'https://www.example.com/reloj-visual', categoria:'Pantallas', creado:d(9)},
     [F+'/reportes/r1']: {hijoId:'h-tomas', fechaSesion:at(10,17,0), trabajamos:'Jugamos a reconocer emociones con tarjetas y conversamos sobre qué le pasa en el cuerpo cuando se enoja ("se me pone caliente la cara").', observe:'Tomás estuvo muy conectado y participativo. Le cuesta todavía tolerar perder en el juego, pero logró detenerse cuando se lo pedí y retomar.', casa:'Avisar los cambios de actividad con anticipación (5 minutos antes) y usar un reloj visual para la tablet.\nCuando logre calmarse, reconocerlo con palabras: "Vi que te enojaste y lograste calmarte".', proximaSesion:prox, enviado:d(9), autorNombre:CFG.psicologa}
   };
   return {users:{'carolina@demo.cl':{uid:'demo-carolina',pass:'demo123'},'rodrigo@demo.cl':{uid:'demo-rodrigo',pass:'demo123'},'mariavalentina@demo.cl':{uid:'demo-admin',pass:'demo123'}}, docs};
@@ -409,7 +416,7 @@ const S = {
   view:'inicio', p:{}, form:{}, modal:null, ob:1,
   fid:null, fam:null, adultos:[], hijos:[], conductas:[], preguntas:[], reportes:[], got:{},
   filtroHijo:'todos', pregTab:'pendientes',
-  familias:[], verArch:false, pfid:null, ptab:'preparar', phijo:null, buscar:'',
+  familias:[], verArch:false, pfid:null, pview:null, recG:[], recF:[], recCat:'todos', recNuevos:[], ptab:'preparar', phijo:null, buscar:'',
   online:navigator.onLine
 };
 let subs = [], psubs = [], pendingRender = false, deferredPrompt = null;
@@ -447,7 +454,7 @@ async function start(){
 async function afterAuth(user){
   unsubAll(subs); unsubAll(psubs);
   S.user = user; S.role = null; S.fid = null; S.got = {}; S.fam = null;
-  S.adultos = []; S.hijos = []; S.conductas = []; S.preguntas = []; S.reportes = []; S.familias = [];
+  S.adultos = []; S.hijos = []; S.conductas = []; S.preguntas = []; S.reportes = []; S.familias = []; S.recG = []; S.recF = []; S.pview = null;
   if (!user){ S.loading = false; render(true); return; }
   S.loading = true; render(true);
   try {
@@ -482,6 +489,8 @@ function startFamily(){
   subs.push(api.listen(F+'/conductas', d => { S.conductas = d.sort((a,b) => b.fecha-a.fecha); done('conductas'); }, onErr));
   subs.push(api.listen(F+'/preguntas', d => { S.preguntas = d.sort((a,b) => b.creado-a.creado); done('preguntas'); }, onErr));
   subs.push(api.listen(F+'/reportes', d => { S.reportes = d.sort((a,b) => b.fechaSesion-a.fechaSesion); done('reportes'); }, onErr));
+  subs.push(api.listen('recursos', d => { S.recG = d; render(); }, e => console.warn(e)));
+  subs.push(api.listen(F+'/recursos', d => { S.recF = d; render(); }, e => console.warn(e)));
 }
 async function revisarAcceso(){
   try { const m = await api.get('miembros/' + S.user.uid); if (!m || m.bloqueado) return bloqueado(); } catch(e){}
@@ -492,7 +501,7 @@ async function bloqueado(){
   if (S.role === 'bloqueado') return;
   unsubAll(subs);
   S.role = 'bloqueado'; S.loading = false; S.fid = null; S.fam = null; S.view = 'inicio'; S.form = {}; S.modal = null;
-  S.adultos = []; S.hijos = []; S.conductas = []; S.preguntas = []; S.reportes = [];
+  S.adultos = []; S.hijos = []; S.conductas = []; S.preguntas = []; S.reportes = []; S.recG = []; S.recF = [];
   try { Object.keys(localStorage).filter(k => k.startsWith('cultiva-') && k !== 'cultiva-tema' && k !== 'cultiva-demo-v1').forEach(k => localStorage.removeItem(k)); } catch(e){}
   render(true);
   await api.purge();
@@ -660,11 +669,13 @@ function proximaSesion(hid){
    ========================================================= */
 function viewParent(){
   if (['registro-form','registro','hijo-form','adulto-form','reporte'].includes(S.view)) return parentSub();
+  const nrec = recursosFam().filter(r => !recVistos().includes(r.id)).length;
   const nr = noLeidos().length, pend = S.preguntas.filter(p => p.estado === 'pendiente').length;
-  const tabs = [['inicio','Inicio','home'],['registros','Registros','lista'],['preguntas','Preguntas','preg'],['reportes','Reportes','rep'],['familia','Familia','fam']];
-  const nav = `<nav class="nav"><div class="nav-in">${tabs.map(([v,l,i]) => `<button class="${S.view===v?'on':''}" data-a="tab" data-v="${v}">${I(i)}${l}${v==='reportes'&&nr?`<span class="bdg">${nr}</span>`:''}${v==='preguntas'&&pend?`<span class="bdg" style="background:var(--pea-d)">${pend}</span>`:''}</button>`).join('')}</div></nav>`;
-  const body = ({inicio:pInicio, registros:pRegistros, preguntas:pPreguntas, reportes:pReportes, familia:pFamilia}[S.view] || pInicio)();
-  return topBar(brand() + '<div class="sp"></div>' + offChip()) + `<div class="wrap">${body}</div>` + nav;
+  const tabs = [['inicio','Inicio','home'],['registros','Registros','lista'],['preguntas','Preguntas','preg'],['reportes','Reportes','rep'],['recursos','Recursos','libro']];
+  const nav = `<nav class="nav"><div class="nav-in">${tabs.map(([v,l,i]) => `<button class="${S.view===v?'on':''}" data-a="tab" data-v="${v}">${I(i)}${l}${v==='reportes'&&nr?`<span class="bdg">${nr}</span>`:''}${v==='preguntas'&&pend?`<span class="bdg" style="background:var(--pea-d)">${pend}</span>`:''}${v==='recursos'&&nrec?`<span class="bdg" style="background:var(--tea-d)">${nrec}</span>`:''}</button>`).join('')}</div></nav>`;
+  const body = ({inicio:pInicio, registros:pRegistros, preguntas:pPreguntas, reportes:pReportes, recursos:pRecursos, familia:pFamilia}[S.view] || pInicio)();
+  const famBtn = `<button class="top-back" data-a="tab" data-v="familia" title="Familia y ajustes" style="flex-direction:column;gap:0;font-size:11px;padding:4px 0 4px 8px;color:${S.view==='familia'?'var(--sal-d)':'var(--ink2)'}">${I('fam')}Familia</button>`;
+  return topBar(brand() + '<div class="sp"></div>' + offChip() + famBtn) + `<div class="wrap">${body}</div>` + nav;
 }
 
 function pInicio(){
@@ -681,6 +692,7 @@ function pInicio(){
     ${pc ? `<div class="card tap" data-a="filtroPC"><div class="row"><span class="tag p">Por completar</span><span class="small">${pc===1?'Hay 1 registro':'Hay '+pc+' registros'} a medio llenar</span></div></div>`:''}
     <div class="sec"><h2>${hs.length>1?'Sus hijos':'Su hijo/a'}</h2></div>
     ${hs.map(h => kidCard(h,'verHijoReg')).join('')}
+    ${(() => { const nv = recursosFam().filter(r => !recVistos().includes(r.id)); return nv.length ? `<div class="card tap" data-a="tab" data-v="recursos" style="margin-top:12px"><div class="row">${I('libro')}<div style="flex:1"><b>${nv.length===1?'Un recurso nuevo':nv.length+' recursos nuevos'}</b><div class="small muted">${esc(nv[0].titulo)}</div></div></div></div>` : ''; })()}
     <div class="sec"><h2>Últimos registros</h2><div class="sp"></div>${rec.length?'<button class="link" data-a="tab" data-v="registros">Ver todos</button>':''}</div>
     ${rec.length ? rec.map(regCard).join('') : `<div class="empty">${RAINBOW}<p>Todavía no hay registros.<br>Cuando pase algo, anótenlo acá.</p></div>`}`;
 }
@@ -807,6 +819,32 @@ function reporteDetalle(r){
 }
 
 /* ---------- Familia ---------- */
+/* ---------- Recursos ---------- */
+const recVistos = () => ls.get('cultiva-recvistos', []);
+function recursosFam(){
+  return S.recF.map(r => Object.assign({}, r, {soloFam:true})).concat(S.recG).sort((a,b) => (b.creado||0)-(a.creado||0));
+}
+const dominio = u => { try { return new URL(u).hostname.replace(/^www\./,''); } catch(e){ return ''; } };
+function recCard(r, admin){
+  const nuevo = !admin && S.recNuevos.includes(r.id);
+  const inner = `<div class="row top"><div class="av sm" style="background:var(--tea-l);color:var(--tea-d)">${I('link').replace('class="i"','class="i" style="width:16px;height:16px"')}</div><div style="flex:1;min-width:0">
+    <div class="row wrapf" style="gap:6px"><b>${esc(r.titulo)}</b>${nuevo?'<span class="tag s">Nuevo</span>':''}</div>
+    ${r.descripcion?`<div class="small muted" style="margin-top:3px">${esc(r.descripcion)}</div>`:''}
+    <div class="row wrapf" style="gap:6px;margin-top:8px">${r.categoria?`<span class="tag t">${esc(r.categoria)}</span>`:''}${r.soloFam?`<span class="tag p">${admin?'Solo esta familia':'Solo para ustedes'}</span>`:''}<span class="tiny">${esc(dominio(r.url))}</span></div>
+    </div></div>`;
+  if (admin) return `<div class="card">${inner}<div class="row" style="margin-top:10px;gap:16px"><a class="link" href="${esc(r.url)}" target="_blank" rel="noopener" style="text-decoration:none">Abrir</a><button class="link" data-a="editarRecurso" data-v="${r.id}" data-f="${r.soloFam?'fam':'gen'}">Editar</button></div></div>`;
+  return `<a class="card tap" href="${esc(r.url)}" target="_blank" rel="noopener" style="display:block;color:inherit;text-decoration:none">${inner}</a>`;
+}
+function pRecursos(){
+  const all = recursosFam();
+  const cats = CAT_REC.filter(c => all.some(r => r.categoria === c));
+  const c = S.recCat;
+  const list = all.filter(r => c === 'todos' || r.categoria === c);
+  return `<div style="padding-top:18px"><h1>Recursos</h1><p class="muted">Material que ${esc(CFG.nombrePila)} comparte con ustedes. Toca uno para abrirlo.</p></div>
+    ${cats.length>1?`<div class="chips scroll"><button class="chip${c==='todos'?' on':''}" data-a="recCat" data-v="todos">Todos</button>${cats.map(k => `<button class="chip${c===k?' on':''}" data-a="recCat" data-v="${esc(k)}">${esc(k)}</button>`).join('')}</div>`:''}
+    <div style="margin-top:12px">${list.map(r => recCard(r)).join('') || `<div class="empty">${RAINBOW}<p>Todavía no hay recursos.<br>Cuando ${esc(CFG.nombrePila)} comparta algo, aparecerá acá.</p></div>`}</div>`;
+}
+
 function pFamilia(){
   const m = me(), hs = hijosOrd();
   const otros = S.adultos.filter(a => a.id !== S.user.uid);
@@ -838,12 +876,13 @@ function mensajeInvitacion(code, nombre, exp){
    Panel de la psicóloga
    ========================================================= */
 function startPanel(){
+  subs.push(api.listen('recursos', d => { S.recG = d.sort((a,b) => (b.creado||0)-(a.creado||0)); render(); }, e => toast(errMsg(e), 4000)));
   subs.push(api.listen('familias', d => { S.familias = d.sort((a,b) => (b.ultimaActividad||0)-(a.ultimaActividad||0)); render(); }, e => toast(errMsg(e), 4000)));
   render(true);
 }
 function openFam(fid){
   unsubAll(psubs);
-  S.pfid = fid; S.ptab = 'preparar'; S.phijo = null; S.fid = fid;
+  S.pfid = fid; S.pview = null; S.ptab = 'preparar'; S.phijo = null; S.fid = fid; S.recF = [];
   S.adultos = []; S.hijos = []; S.conductas = []; S.preguntas = []; S.reportes = [];
   const F = 'familias/' + fid, onErr = e => toast(errMsg(e), 4000);
   psubs.push(api.listen(F+'/adultos', d => { S.adultos = d; render(); }, onErr));
@@ -851,6 +890,7 @@ function openFam(fid){
   psubs.push(api.listen(F+'/conductas', d => { S.conductas = d.sort((a,b) => b.fecha-a.fecha); render(); }, onErr));
   psubs.push(api.listen(F+'/preguntas', d => { S.preguntas = d.sort((a,b) => b.creado-a.creado); render(); }, onErr));
   psubs.push(api.listen(F+'/reportes', d => { S.reportes = d.sort((a,b) => b.fechaSesion-a.fechaSesion); render(); }, onErr));
+  psubs.push(api.listen(F+'/recursos', d => { S.recF = d.map(r => Object.assign(r, {soloFam:true})).sort((a,b) => (b.creado||0)-(a.creado||0)); render(); }, onErr));
   const vistos = ls.get('cultiva-vistos', {}); vistos[fid] = Date.now(); ls.set('cultiva-vistos', vistos);
 }
 function famItem(f, vistos){
@@ -865,23 +905,24 @@ function viewPanel(){
   const fams = S.familias.filter(f => f.estado !== 'bloqueada' && match(f));
   const arch = S.familias.filter(f => f.estado === 'bloqueada' && match(f));
   const abiertas = S.verArch || !!q || arch.some(f => f.id === S.pfid);
-  const side = `<div class="p-side ${S.pfid?'p-hide-m':''}">
+  const side = `<div class="p-side ${S.pfid||S.pview?'p-hide-m':''}">
+    <div class="fam-it${S.pview==='recursos'?' on':''}" data-a="abrirBiblio" style="margin:4px 0 14px"><div class="av" style="background:var(--tea-l);color:var(--tea-d)">${I('libro')}</div><div style="flex:1"><div class="n">Biblioteca de recursos</div><div class="tiny">${S.recG.length} para todas las familias</div></div></div>
     <div class="row" style="margin:6px 0 12px"><h2 style="margin:0">Familias</h2><div class="sp"></div><button class="btn sm" data-a="modalNuevaFam">${I('plus')} Nueva</button></div>
     <input class="in" data-f="__buscar" placeholder="Buscar familia…" value="${esc(S.buscar)}" style="margin-bottom:10px">
     ${fams.map(f => famItem(f, vistos)).join('') || (arch.length ? '<p class="muted small">No hay familias activas.</p>' : '<p class="muted small">Aún no hay familias. Crea la primera con "Nueva".</p>')}
     ${arch.length ? `<button class="link" data-a="toggleArch" style="margin:16px 0 6px;color:var(--ink2)">${abiertas?'▾':'▸'} Acceso cerrado (${arch.length})</button>${abiertas ? arch.map(f => famItem(f, vistos)).join('') : ''}` : ''}
     <div style="margin-top:20px"><button class="btn ghost full sm" data-a="salir">${I('salir')} Cerrar sesión</button></div>
   </div>`;
-  const main = S.pfid ? panelFam() : `<div class="p-main p-hide-m"><div class="empty" style="padding-top:18vh">${RAINBOW}<p>Elige una familia para ver sus registros,<br>preguntas y reportes.</p></div></div>`;
-  return topBar(`${S.pfid?`<button class="top-back p-only-m" data-a="cerrarFam">${I('back')}</button>`:''}${brand()}<div class="sp"></div><span class="small muted p-hide-m">${esc(CFG.psicologa)}</span>${offChip()}`, true) + `<div class="panel">${side}${main}</div>`;
+  const main = S.pview === 'recursos' ? panelBiblio() : S.pfid ? panelFam() : `<div class="p-main p-hide-m"><div class="empty" style="padding-top:18vh">${RAINBOW}<p>Elige una familia para ver sus registros,<br>preguntas y reportes.</p></div></div>`;
+  return topBar(`${S.pfid||S.pview?`<button class="top-back p-only-m" data-a="cerrarFam">${I('back')}</button>`:''}${brand()}<div class="sp"></div><span class="small muted p-hide-m">${esc(CFG.psicologa)}</span>${offChip()}`, true) + `<div class="panel">${side}${main}</div>`;
 }
 function panelFam(){
   const fam = S.familias.find(f => f.id === S.pfid) || {};
   const pend = S.preguntas.filter(p => p.estado === 'pendiente').length;
-  const tabs = [['preparar','Antes de la sesión'],['registros','Registros'],['preguntas','Preguntas'+(pend?' ('+pend+')':'')],['reportes','Reportes'],['ficha','Ficha']];
+  const tabs = [['preparar','Antes de la sesión'],['registros','Registros'],['preguntas','Preguntas'+(pend?' ('+pend+')':'')],['reportes','Reportes'],['recursosF','Recursos'],['ficha','Ficha']];
   let body = '';
   if (S.ptab === 'reporte-form') body = adminReporteForm();
-  else body = ({preparar:aPreparar, registros:aRegistros, preguntas:aPreguntas, reportes:aReportes, ficha:aFicha}[S.ptab] || aPreparar)();
+  else body = ({preparar:aPreparar, registros:aRegistros, preguntas:aPreguntas, reportes:aReportes, recursosF:aRecursos, ficha:aFicha}[S.ptab] || aPreparar)();
   const banner = fam.estado === 'bloqueada' ? `<div class="box s row" style="margin-top:14px"><div style="flex:1"><b>Acceso cerrado</b><div class="small">Desde el ${esc(fFechaL(fam.bloqueadaEn||Date.now()))}${fam.motivoBloqueo?' · '+esc(fam.motivoBloqueo):''}. La familia ya no puede entrar a la app; tú sigues viendo toda la información.</div></div><button class="btn sm sec2" data-a="modalReactivar">Reactivar</button></div>` : '';
   return `<div class="p-main">${banner}<div style="padding-top:14px"><h1>${esc(fam.nombre||'')}</h1><p class="small muted">${hijosOrd().map(h => esc(h.nombre)+(h.fechaNac?' ('+esc(edad(h.fechaNac))+')':'')).join(' · ') || 'Todavía sin datos de los niños'}</p></div>
     ${S.ptab!=='reporte-form'?`<div class="ptabs">${tabs.map(([v,l]) => `<button class="${S.ptab===v?'on':''}" data-a="ptab" data-v="${v}">${l}</button>`).join('')}</div>`:''}${body}</div>`;
@@ -968,6 +1009,16 @@ function adminReporteForm(){
     <div class="stack" style="margin-top:12px"><button class="btn full" data-a="enviarReporte">${S.p.repId?'Guardar cambios':'Enviar a la familia'}</button>
     ${S.p.repId?'<button class="btn ghost full danger" data-a="borrarReporte">Eliminar reporte</button>':''}</div>`;
 }
+function panelBiblio(){
+  return `<div class="p-main"><div style="padding-top:14px"><h1>Biblioteca de recursos</h1><p class="small muted">Links que ven todas las familias con acceso activo. Para compartir algo con una sola familia, hazlo desde la pestaña Recursos de esa familia.</p></div>
+    <button class="btn full" data-a="nuevoRecurso" data-v="todas" style="margin:6px 0 14px">${I('plus')} Agregar recurso</button>
+    ${S.recG.map(r => recCard(r, true)).join('') || '<p class="muted">Aún no hay recursos. Agrega links a guías, videos o material en Drive.</p>'}</div>`;
+}
+function aRecursos(){
+  return `<button class="btn full" data-a="nuevoRecurso" data-v="${S.pfid}" style="margin-bottom:14px">${I('plus')} Recurso solo para esta familia</button>
+    ${S.recF.map(r => recCard(r, true)).join('') || '<p class="muted small">No hay recursos exclusivos para esta familia.</p>'}
+    <p class="small muted" style="margin-top:14px">Además ven los ${S.recG.length} recursos de la <button class="link" data-a="abrirBiblio">biblioteca general</button>.</p>`;
+}
 function aFicha(){
   const fam = S.familias.find(f => f.id === S.pfid) || {}, hs = hijosOrd();
   const vigente = fam.codigo && fam.codigoExpira > Date.now();
@@ -998,6 +1049,16 @@ function viewModal(){
     <div class="row" style="margin-top:18px;justify-content:flex-end"><button class="btn ghost sm" data-a="cerrarModal">Cancelar</button><button class="btn sm" data-a="crearFamilia">Crear</button></div>`;
   else if (m.tipo === 'codigo') h = `<h2>${esc(m.nombre)}</h2><p class="small muted">Comparte este código con la familia:</p><div class="code">${esc(m.code)}</div>
     <div class="row wrapf" style="margin-top:14px"><button class="btn sm sec2" data-a="copiarTexto" data-v="${esc(mensajeInvitacion(m.code, m.nombre, m.exp))}">${I('copiar')} Copiar mensaje</button><a class="btn sm teal" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(mensajeInvitacion(m.code, m.nombre, m.exp))}">${I('wsp')} WhatsApp</a><div class="sp"></div><button class="btn sm" data-a="cerrarModal">Listo</button></div>`;
+  else if (m.tipo === 'recurso'){
+    const fam = S.familias.find(f => f.id === S.pfid);
+    h = `<h2>${m.id?'Editar recurso':'Nuevo recurso'}</h2>
+    ${inp('titulo','Título',{ph:'Ej: Guía para la hora de dormir'})}
+    ${inp('url','Link',{type:'url', im:'url', ph:'https://…', help:'Si es de Google Drive, compártelo como "cualquier persona con el enlace".'})}
+    ${inp('descripcion','Descripción',{opt:1, area:1, ph:'Para qué sirve o cuándo usarlo.'})}
+    <label class="f">Tema</label>${chipsSel('categoria', CAT_REC, false, true)}
+    <label class="f">¿Quién lo ve?</label><div class="chips"><button class="chip${S.form.para==='todas'?' on':''}" data-a="chip1" data-f="para" data-v="todas">Todas las familias</button>${fam?`<button class="chip${S.form.para===fam.id?' on':''}" data-a="chip1" data-f="para" data-v="${fam.id}">Solo ${esc(fam.nombre)}</button>`:''}</div>
+    <div class="row wrapf" style="margin-top:20px;gap:8px">${m.id?'<button class="btn ghost sm danger" data-a="borrarRecurso">Eliminar</button>':''}<div class="sp"></div><button class="btn ghost sm" data-a="cerrarModal">Cancelar</button><button class="btn sm" data-a="guardarRecurso">Guardar</button></div>`;
+  }
   else if (m.tipo === 'bloquear') h = `<h2>Cerrar acceso</h2>
     <p class="small">Todos los adultos de <b>${esc(m.nombre)}</b> dejarán de poder entrar a la app y se borrará la información guardada en sus teléfonos. El código de invitación se desactiva.</p>
     <p class="small muted">Tú sigues viendo la ficha, registros, preguntas y reportes. Puedes reactivar el acceso cuando quieras.</p>
@@ -1016,7 +1077,7 @@ function viewModal(){
 function go(view, p){ S.view = view; S.p = p || {}; history.pushState({v:view, p:S.p}, ''); render(true); window.scrollTo(0,0); }
 window.addEventListener('popstate', e => {
   if (S.modal){ S.modal = null; render(true); return; }
-  if (S.role === 'admin'){ if (S.ptab === 'reporte-form') { S.ptab = 'reportes'; render(true); } else if (S.pfid && innerWidth < 900) { A.cerrarFam(); } return; }
+  if (S.role === 'admin'){ if (S.ptab === 'reporte-form') { S.ptab = 'reportes'; render(true); } else if ((S.pfid || S.pview) && innerWidth < 900) { A.cerrarFam(); } return; }
   const st = e.state || {v:'inicio'}; S.view = st.v || 'inicio'; S.p = st.p || {}; render(true);
 });
 async function copiar(txt){ try { await navigator.clipboard.writeText(txt); toast('Copiado'); } catch(e){ prompt('Copia este texto:', txt); } }
@@ -1108,7 +1169,8 @@ const A = {
   terminarOb(){ S.ob = 1; S.view = 'inicio'; render(true); },
 
   /* navegación familia */
-  tab(v){ S.view = v; S.p = {}; if (v !== 'registros' && v !== 'reportes') S.filtroHijo = 'todos'; history.replaceState({v}, ''); render(true); window.scrollTo(0,0); },
+  tab(v){ if (v === 'recursos'){ const vis = recVistos(), ids = recursosFam().map(r => r.id); S.recNuevos = ids.filter(id => !vis.includes(id)); ls.set('cultiva-recvistos', Array.from(new Set(vis.concat(ids)))); }
+    S.view = v; S.p = {}; if (v !== 'registros' && v !== 'reportes') S.filtroHijo = 'todos'; history.replaceState({v}, ''); render(true); window.scrollTo(0,0); },
   back(){ history.back(); },
   filtro(v){ S.filtroHijo = v; render(true); },
   filtroPC(){ S.filtroHijo = 'pc'; A.tab('registros'); S.filtroHijo = 'pc'; render(true); },
@@ -1179,7 +1241,38 @@ const A = {
 
   /* panel */
   abrirFam(id){ openFam(id); history.pushState({p:'fam'}, ''); render(true); window.scrollTo(0,0); },
-  cerrarFam(){ unsubAll(psubs); S.pfid = null; S.fid = null; render(true); },
+  cerrarFam(){ unsubAll(psubs); S.pfid = null; S.fid = null; S.pview = null; render(true); },
+  abrirBiblio(){ unsubAll(psubs); S.pfid = null; S.fid = null; S.pview = 'recursos'; history.pushState({p:'bib'}, ''); render(true); window.scrollTo(0,0); },
+  recCat(v){ S.recCat = v; render(true); },
+  nuevoRecurso(para){ S.form = {para: para || 'todas', categoria:''}; S.modal = {tipo:'recurso'}; render(true); },
+  editarRecurso(id, t){
+    const fam = t.dataset.f === 'fam', r = (fam ? S.recF : S.recG).find(x => x.id === id);
+    const para = fam ? S.pfid : 'todas';
+    S.form = {titulo:r.titulo, url:r.url, descripcion:r.descripcion||'', categoria:r.categoria||'', para};
+    S.modal = {tipo:'recurso', id, para0:para, creado:r.creado}; render(true);
+  },
+  async guardarRecurso(){
+    const f = S.form, m = S.modal;
+    const titulo = (f.titulo||'').trim(); let url = (f.url||'').trim();
+    if (!titulo) return toast('Falta el título');
+    if (!url) return toast('Falta el link');
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    try { new URL(url); } catch(e){ return toast('Revisa el link, no parece válido'); }
+    const para = f.para || 'todas';
+    const ruta = p => (p === 'todas' ? 'recursos/' : `familias/${p}/recursos/`);
+    const id = m.id || api.newId();
+    const d = {titulo, url, descripcion:(f.descripcion||'').trim(), categoria:f.categoria||'', creado: m.creado || Date.now(), actualizado: Date.now()};
+    const ops = [{op:'set', path: ruta(para) + id, data:d}];
+    if (m.id && m.para0 !== para) ops.push({op:'delete', path: ruta(m.para0) + m.id});
+    try { await api.batch(ops); } catch(e){ return toast(errMsg(e), 4000); }
+    if (para !== 'todas' && !m.id){ api.update('familias/' + para, {ultimaActividad: Date.now(), actividadTexto:'Compartiste un recurso'}).catch(() => {}); }
+    S.modal = null; S.form = {}; toast(m.id ? 'Recurso actualizado' : 'Recurso compartido'); render(true);
+  },
+  async borrarRecurso(){
+    const m = S.modal; if (!confirm('¿Eliminar este recurso? Las familias dejarán de verlo.')) return;
+    try { await api.del((m.para0 === 'todas' ? 'recursos/' : `familias/${m.para0}/recursos/`) + m.id); } catch(e){ return toast(errMsg(e), 4000); }
+    S.modal = null; S.form = {}; toast('Recurso eliminado'); render(true);
+  },
   toggleArch(){ S.verArch = !S.verArch; render(true); },
   modalBloquear(){ const f = S.familias.find(x => x.id === S.pfid); S.form = {motivoBloqueo:'Alta terapéutica'}; S.modal = {tipo:'bloquear', nombre:f.nombre}; render(true); },
   modalReactivar(){ const f = S.familias.find(x => x.id === S.pfid); S.modal = {tipo:'reactivar', nombre:f.nombre}; render(true); },
