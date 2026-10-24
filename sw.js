@@ -1,6 +1,6 @@
 // Service worker: guarda la app para usarla sin internet.
 // IMPORTANTE: subir VERSION en cada publicación para que los teléfonos se actualicen.
-const VERSION = 'cultiva-v4';
+const VERSION = 'cultiva-v5';
 const ARCHIVOS = [
   './',
   './index.html',
@@ -31,10 +31,20 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  const url = new URL(e.request.url);
+  const req = e.request, url = new URL(req.url);
   // Solo archivos propios. Firebase (googleapis) pasa directo.
-  if (e.request.method !== 'GET' || url.origin !== location.origin) return;
-  e.respondWith(
-    caches.match(e.request, { ignoreSearch: true }).then(r => r || fetch(e.request))
-  );
+  if (req.method !== 'GET' || url.origin !== location.origin) return;
+  const esApp = req.mode === 'navigate' || /\/(index\.html|config\.js|manifest\.webmanifest)?$/.test(url.pathname);
+  if (esApp) {
+    // Red primero: con internet siempre se carga la versión más nueva; sin internet, la guardada.
+    e.respondWith(
+      fetch(req, {cache: 'no-store'}).then(r => {
+        if (r.ok) { const copia = r.clone(); caches.open(VERSION).then(c => c.put(req, copia)); }
+        return r;
+      }).catch(() => caches.match(req, {ignoreSearch: true}).then(r => r || caches.match('./index.html')))
+    );
+    return;
+  }
+  // Fuentes, íconos y librerías: guardados primero (no cambian).
+  e.respondWith(caches.match(req, {ignoreSearch: true}).then(r => r || fetch(req)));
 });

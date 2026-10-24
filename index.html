@@ -1392,7 +1392,14 @@ window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferr
 function applyTheme(){ const t = ls.get('cultiva-tema','auto'); if (t === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t); }
 
 history.replaceState({v:'inicio'}, '');
-if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  // Si llega una versión nueva mientras la app está abierta, se recarga sola una vez.
+  const habiaSW = !!navigator.serviceWorker.controller; let recargado = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (habiaSW && !recargado && !isTyping()) { recargado = true; location.reload(); } });
+  navigator.serviceWorker.register('sw.js', {updateViaCache: 'none'}).then(reg => {
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+  }).catch(() => {});
+}
 start();
 </script>
 </body>
