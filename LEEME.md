@@ -71,6 +71,20 @@ git add . && git commit -m "Activar Firebase" && git push
 3. Cada adulto abre el link, toca **Tengo un código**, crea su cuenta con su correo, acepta las condiciones y completa sus datos y los de los niños.
 4. El mismo código sirve para mamá, papá o quien acompañe. Desde **Ficha** se puede desactivar o generar uno nuevo; las cuentas ya creadas siguen funcionando.
 
+## Cerrar el acceso de una familia (alta)
+
+En el panel: familia → **Ficha** → **Cerrar acceso (alta)**, con un motivo que ve solo ella.
+
+- Todos los adultos de la familia pierden el acceso, aunque tengan la app instalada. Si la tienen abierta, les aparece en vivo "Tu acceso a la app terminó".
+- Se borran los borradores y la copia sin internet guardada en sus teléfonos.
+- El código de invitación se desactiva.
+- María Valentina sigue viendo toda la información; la familia pasa a "Acceso cerrado" en su lista.
+- **Reactivar** devuelve el acceso con las mismas cuentas.
+
+El bloqueo lo hacen cumplir las reglas de Firestore en el servidor, no la app. **Si ya pegaste las reglas en Firebase, vuelve a pegarlas**, porque cambiaron.
+
+Límite: si un teléfono no vuelve a conectarse nunca a internet, no recibe la orden de borrar su copia local. Apenas se conecta, se bloquea.
+
 ## Pendiente de revisar con María Valentina, antes de repartirla
 
 - Texto del consentimiento (función `consentHTML` en `index.html`). Hoy es un texto de ejemplo.

@@ -4,6 +4,8 @@ rules_version = '2';
 // - La psicóloga (documento en /admins/{uid}) ve y administra todo.
 // - Cada apoderado ve solo la familia a la que lo invitaron.
 // - Nadie entra a una familia sin un código de invitación vigente.
+// - Si la psicóloga cierra el acceso (miembros/{uid}.bloqueado == true), ese adulto
+//   ya no puede leer ni escribir nada de su familia.
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -15,7 +17,8 @@ service cloud.firestore {
     function isMember(fid) {
       return signedIn()
         && exists(/databases/$(database)/documents/miembros/$(request.auth.uid))
-        && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.familiaId == fid;
+        && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.familiaId == fid
+        && get(/databases/$(database)/documents/miembros/$(request.auth.uid)).data.get('bloqueado', false) != true;
     }
     function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
 
@@ -41,7 +44,9 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/invitaciones/$(request.resource.data.codigo)).data.familiaId == request.resource.data.familiaId
         && get(/databases/$(database)/documents/invitaciones/$(request.resource.data.codigo)).data.activa == true
         && request.time.toMillis() < get(/databases/$(database)/documents/invitaciones/$(request.resource.data.codigo)).data.expira;
-      allow update: if false;
+      // Solo la psicóloga cierra o reabre el acceso.
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['bloqueado', 'bloqueadoEn']);
       allow delete: if isAdmin();
     }
 
