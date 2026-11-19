@@ -327,6 +327,7 @@ async function firebaseBackend(){
     listen: (col, cb, onErr) => F.onSnapshot(F.collection(db, col), {includeMetadataChanges:true}, s => cb(snapDocs(s)), onErr),
     listenDoc: (p, cb, onErr) => F.onSnapshot(D(p), s => cb(s.exists() ? Object.assign({id:s.id}, s.data()) : null), onErr),
     query: async (col, field, val) => snapDocs(await F.getDocs(F.query(F.collection(db, col), F.where(field, '==', val)))),
+    list: async col => snapDocs(await F.getDocs(F.collection(db, col))),
     // Borra la copia local (sin internet) de los datos de Firestore en este equipo.
     purge: async () => { try { await F.terminate(db); await F.clearIndexedDbPersistence(db); } catch(e){ console.warn(e); } },
     newId: () => F.doc(F.collection(db, '_')).id
@@ -369,6 +370,7 @@ function demoBackend(){
     listen(col, cb){ const l = () => cb(colDocs(col)); L.add(l); setTimeout(l, 0); return () => L.delete(l); },
     listenDoc(p, cb){ const l = () => cb(db.docs[p] ? Object.assign({id:p.split('/').pop()}, JSON.parse(JSON.stringify(db.docs[p]))) : null); L.add(l); setTimeout(l, 0); return () => L.delete(l); },
     async query(col, field, val){ return colDocs(col).filter(d => d[field] === val); },
+    async list(col){ return colDocs(col); },
     async purge(){},
     newId
   };
@@ -484,7 +486,7 @@ function startFamily(){
   const done = k => { S.got[k] = true; if (['fam','adultos','hijos','conductas','preguntas','reportes'].every(x => S.got[x])) S.loading = false; render(); };
   const onErr = e => { console.error(e); if (/permission/.test((e && (e.code||e.message)) || '')) revisarAcceso(); else toast(errMsg(e), 4000); };
   // Si María Valentina cierra el acceso de la familia, el aviso llega acá en vivo.
-  subs.push(api.listenDoc('miembros/' + S.user.uid, d => { if (d && d.bloqueado) bloqueado(); }, () => {}));
+  subs.push(api.listenDoc('miembros/' + S.user.uid, d => { if (!d || d.bloqueado) bloqueado(); }, () => {}));
   subs.push(api.listenDoc(F, d => { S.fam = d; done('fam'); }, onErr));
   subs.push(api.listen(F+'/adultos', d => { S.adultos = d; done('adultos'); }, onErr));
   subs.push(api.listen(F+'/hijos', d => { S.hijos = d; done('hijos'); }, onErr));
@@ -893,11 +895,49 @@ function mensajeInvitacion(code, nombre, exp){
 /* =========================================================
    Panel de la psicóloga
    ========================================================= */
+/* ---------- Avisos para la psicóloga ---------- */
+// Textos de actividad que genera la propia psicóloga: no avisan.
+const ACT_PSICO = ['Familia creada','Compartiste un recurso','Acceso cerrado','Acceso reactivado'];
+let ultAct = null;
+const avisosOn = () => ls.get('cultiva-avisos', false) && 'Notification' in window && Notification.permission === 'granted';
+function esNovedad(f){ return f.estado !== 'bloqueada' && f.actividadTexto && !ACT_PSICO.includes(f.actividadTexto); }
+function avisarNovedades(fams){
+  const prev = ultAct; ultAct = {};
+  fams.forEach(f => ultAct[f.id] = f.ultimaActividad || 0);
+  if (!prev) return; // primera carga: no se avisa lo que ya estaba
+  fams.filter(f => esNovedad(f) && (f.ultimaActividad||0) > (prev[f.id]||0) && f._pend !== true).forEach(f => {
+    if (S.pfid === f.id && document.visibilityState === 'visible') return; // ya la está mirando
+    const titulo = f.nombre || 'Espacio Cultiva', cuerpo = f.actividadTexto;
+    toast(`${titulo}: ${cuerpo}`, 4500);
+    if (!avisosOn()) return;
+    const opt = {body: cuerpo, tag: 'fam-' + f.id, icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', data: {fid: f.id}};
+    mostrarAviso(titulo, opt);
+  });
+}
+// Con service worker el aviso funciona también en Android y en la app instalada; si no, aviso simple del navegador.
+function mostrarAviso(titulo, opt){
+  const simple = () => { try { new Notification(titulo, opt); } catch(e){} };
+  if (!navigator.serviceWorker) return simple();
+  navigator.serviceWorker.getRegistration().then(r => r ? r.showNotification(titulo, opt) : simple()).catch(simple);
+}
+function pendientesPanel(){ const v = ls.get('cultiva-vistos', {}); return S.familias.filter(f => esNovedad(f) && (f.ultimaActividad||0) > (v[f.id]||0)).length; }
+function actualizarBadge(){
+  const n = S.role === 'admin' ? pendientesPanel() : 0;
+  document.title = (n ? `(${n}) ` : '') + 'Espacio Cultiva';
+  try { n ? navigator.setAppBadge && navigator.setAppBadge(n) : navigator.clearAppBadge && navigator.clearAppBadge(); } catch(e){}
+}
+function avisosBox(){
+  if (!('Notification' in window)) return `<div class="tiny" style="margin:4px 0 12px">Este navegador no permite avisos. En iPhone, instala la app en la pantalla de inicio para activarlos.</div>`;
+  if (avisosOn()) return `<div class="row tiny" style="margin:0 0 12px;gap:6px"><span class="dot" style="background:var(--tea-d)"></span>Avisos activados en este equipo · <button class="link" style="font-size:12px" data-a="avisosOff">desactivar</button></div>`;
+  if (Notification.permission === 'denied') return `<div class="tiny" style="margin:0 0 12px">Los avisos están bloqueados en este navegador. Actívalos en los ajustes del sitio.</div>`;
+  return `<button class="btn ghost sm full" data-a="avisosOn" style="margin:0 0 12px">🔔 Activar avisos en este equipo</button>`;
+}
+
 function startPanel(){
   subs.push(api.listen('recursos', d => { S.recG = d.sort((a,b) => (b.creado||0)-(a.creado||0)); render(); }, e => toast(errMsg(e), 4000)));
   // Registro maestro de cada recurso con la lista de familias a las que va (solo lo lee la psicóloga).
   subs.push(api.listen('recursosAdmin', d => { S.recM = d; render(); }, e => console.warn(e)));
-  subs.push(api.listen('familias', d => { S.familias = d.sort((a,b) => (b.ultimaActividad||0)-(a.ultimaActividad||0)); render(); }, e => toast(errMsg(e), 4000)));
+  subs.push(api.listen('familias', d => { avisarNovedades(d); S.familias = d.sort((a,b) => (b.ultimaActividad||0)-(a.ultimaActividad||0)); actualizarBadge(); render(); }, e => toast(errMsg(e), 4000)));
   render(true);
 }
 function openFam(fid){
@@ -911,7 +951,7 @@ function openFam(fid){
   psubs.push(api.listen(F+'/preguntas', d => { S.preguntas = d.sort((a,b) => b.creado-a.creado); render(); }, onErr));
   psubs.push(api.listen(F+'/reportes', d => { S.reportes = d.sort((a,b) => b.fechaSesion-a.fechaSesion); render(); }, onErr));
   psubs.push(api.listen(F+'/recursos', d => { S.recF = d.map(r => Object.assign(r, {soloFam:true})).sort((a,b) => (b.creado||0)-(a.creado||0)); render(); }, onErr));
-  const vistos = ls.get('cultiva-vistos', {}); vistos[fid] = Date.now(); ls.set('cultiva-vistos', vistos);
+  const vistos = ls.get('cultiva-vistos', {}); vistos[fid] = Date.now(); ls.set('cultiva-vistos', vistos); actualizarBadge();
 }
 function famItem(f, vistos){
   const cerrada = f.estado === 'bloqueada';
@@ -927,6 +967,7 @@ function viewPanel(){
   const abiertas = S.verArch || !!q || arch.some(f => f.id === S.pfid);
   const side = `<div class="p-side ${S.pfid||S.pview?'p-hide-m':''}">
     <div class="fam-it${S.pview==='recursos'?' on':''}" data-a="abrirBiblio" style="margin:4px 0 14px"><div class="av" style="background:var(--tea-l);color:var(--tea-d)">${I('libro')}</div><div style="flex:1"><div class="n">Biblioteca de recursos</div><div class="tiny">${(n => n === 1 ? '1 recurso compartido' : n + ' recursos compartidos')(recAdmin().length)}</div></div></div>
+    ${avisosBox()}
     <div class="row" style="margin:6px 0 12px"><h2 style="margin:0">Familias</h2><div class="sp"></div><button class="btn sm" data-a="modalNuevaFam">${I('plus')} Nueva</button></div>
     <input class="in" data-f="__buscar" placeholder="Buscar familia…" value="${esc(S.buscar)}" style="margin-bottom:10px">
     ${fams.map(f => famItem(f, vistos)).join('') || (arch.length ? '<p class="muted small">No hay familias activas.</p>' : '<p class="muted small">Aún no hay familias. Crea la primera con "Nueva".</p>')}
@@ -1066,14 +1107,16 @@ function aFicha(){
     </div>`}
     <div class="sec"><h2>Niños</h2></div>
     ${hs.map(h => `<div class="card"><div class="row" style="margin-bottom:10px">${av(h)}<div><b>${esc(h.nombre)} ${esc(h.apellidos||'')}</b><div class="small muted">${esc(edad(h.fechaNac))}${h.fechaNac?' · '+esc(new Date(h.fechaNac+'T12:00').toLocaleDateString('es-CL')):''}</div></div></div>
-      <dl class="ficha">${row('Curso',h.curso)}${row('Colegio',h.colegio)}${row('Vive con',h.viveCon)}${row('Hermanos',h.hermanos)}${row('Motivo',h.motivo)}${row('Le gusta / lo calma',h.gustos)}${row('Salud',h.salud)}${row('Región', [h.region, h.comuna].filter(Boolean).join(' · '))}${(h.profesionales||[]).length ? `<dt>Profesionales</dt><dd>${h.profesionales.map(p => `<div><b>${esc(p.esp||'Profesional')}</b>${p.nombre?': '+esc(p.nombre):''}${p.contacto?` <span class="muted">· ${esc(p.contacto)}</span>`:''}</div>`).join('')}</dd>` : ''}${row('Otros profesionales',h.otros)}</dl></div>`).join('') || '<p class="muted small">Sin datos todavía.</p>'}
+      <dl class="ficha">${row('Curso',h.curso)}${row('Colegio',h.colegio)}${row('Vive con',h.viveCon)}${row('Hermanos',h.hermanos)}${row('Motivo',h.motivo)}${row('Le gusta / lo calma',h.gustos)}${row('Salud',h.salud)}${row('Región', [h.region, h.comuna].filter(Boolean).join(' · '))}${(h.profesionales||[]).length ? `<dt>Profesionales</dt><dd>${h.profesionales.map(p => `<div><b>${esc(p.esp||'Profesional')}</b>${p.nombre?': '+esc(p.nombre):''}${p.contacto?` <span class="muted">· ${esc(p.contacto)}</span>`:''}</div>`).join('')}</dd>` : ''}${row('Otros profesionales',h.otros)}</dl><div class="row" style="margin-top:10px"><div class="sp"></div><button class="link danger" style="font-size:13px" data-a="modalBorrarHijo" data-v="${h.id}">Eliminar a ${esc(h.nombre)}</button></div></div>`).join('') || '<p class="muted small">Sin datos todavía.</p>'}
     <div class="sec"><h2>Adultos</h2></div>
     ${S.adultos.map(a => `<div class="card"><b>${esc(a.nombre)} ${esc(a.apellidos||'')}</b> <span class="tag">${esc(a.parentesco==='Otro'?a.parentescoOtro:a.parentesco)}</span>
       <dl class="ficha" style="margin-top:10px">${row('Profesión',a.profesion)}${row('Trabajo',a.trabajo)}${row('Teléfono',a.telefono)}${row('Correo',a.correo)}${row('Vive con los niños',a.viveCon)}${row('Contacto',a.contacto)}${row('Notas',a.notas)}${row('Aceptó condiciones', a.consentimiento?new Date(a.consentimiento).toLocaleDateString('es-CL'):'')}</dl>
       ${a.telefono?`<div class="row" style="margin-top:10px"><a class="btn sm teal" target="_blank" rel="noopener" href="https://wa.me/${esc(String(a.telefono).replace(/\D/g,''))}">${I('wsp')} WhatsApp</a></div>`:''}</div>`).join('') || '<p class="muted small">Ningún adulto se ha unido todavía.</p>'}
     <div class="sec"><h2>Acceso a la app</h2></div>
     ${cerrada ? `<div class="card"><p class="small" style="margin:0 0 10px">El acceso está cerrado. Si la familia vuelve a consulta, puedes reactivarlo y verán todo como antes.</p><button class="btn sm sec2" data-a="modalReactivar">Reactivar acceso</button></div>`
-      : `<div class="card"><p class="small muted" style="margin:0 0 10px">Cuando termine el proceso, cierra el acceso. La familia deja de ver la app y sus datos en todos sus teléfonos; tú conservas todo en el panel.</p><button class="btn sm ghost danger" data-a="modalBloquear">Cerrar acceso (alta)</button></div>`}`;
+      : `<div class="card"><p class="small muted" style="margin:0 0 10px">Cuando termine el proceso, cierra el acceso. La familia deja de ver la app y sus datos en todos sus teléfonos; tú conservas todo en el panel.</p><button class="btn sm ghost danger" data-a="modalBloquear">Cerrar acceso (alta)</button></div>`}
+    <div class="sec"><h2>Eliminar</h2></div>
+    <div class="card" style="border-color:#E9B7B0"><p class="small muted" style="margin:0 0 10px">Borra para siempre la familia y todo lo suyo: ficha, registros, preguntas, reportes y recursos compartidos solo con ella. Los adultos pierden el acceso al tiro. <b>No se puede deshacer.</b> Si solo terminó el proceso, es mejor cerrar el acceso y conservar la información.</p><button class="btn sm ghost danger" data-a="modalBorrarFam">Eliminar familia definitivamente</button></div>`;
 }
 
 /* ---------- Modal ---------- */
@@ -1102,6 +1145,16 @@ function viewModal(){
     <p class="small muted">Tú sigues viendo la ficha, registros, preguntas y reportes. Puedes reactivar el acceso cuando quieras.</p>
     <label class="f">Motivo <span class="opt">(solo lo ves tú)</span></label>${chipsSel('motivoBloqueo',['Alta terapéutica','Derivación','Abandono del proceso','Otro'])}
     <div class="row" style="margin-top:20px;justify-content:flex-end"><button class="btn ghost sm" data-a="cerrarModal">Cancelar</button><button class="btn sm" style="background:#B4443A" data-a="bloquearFamilia">Cerrar acceso</button></div>`;
+  else if (m.tipo === 'borrarFam') h = `<h2>Eliminar ${esc(m.nombre)}</h2>
+    <p class="small">Se borra <b>para siempre</b>: ${m.resumen}. Los adultos de la familia pierden el acceso en todos sus teléfonos.</p>
+    <p class="small muted">Esto no se puede deshacer. Si necesitas conservar la información, mejor cierra el acceso.</p>
+    <label class="f">Para confirmar escribe <b>ELIMINAR</b></label><input class="in" data-f="confirmaBorrar" autocomplete="off" autocapitalize="characters" value="${esc(S.form.confirmaBorrar)}">
+    <div class="row" style="margin-top:20px;justify-content:flex-end"><button class="btn ghost sm" data-a="cerrarModal" ${m.busy?'disabled':''}>Cancelar</button><button class="btn sm" style="background:#B4443A" data-a="borrarFamilia" ${m.busy?'disabled':''}>${m.busy?'Eliminando…':'Eliminar para siempre'}</button></div>`;
+  else if (m.tipo === 'borrarHijo') h = `<h2>Eliminar a ${esc(m.nombre)}</h2>
+    <p class="small">Se borra su ficha y todo lo asociado: ${m.resumen}. El resto de la familia no cambia.</p>
+    <p class="small muted">Esto no se puede deshacer.</p>
+    <label class="f">Para confirmar escribe <b>ELIMINAR</b></label><input class="in" data-f="confirmaBorrar" autocomplete="off" autocapitalize="characters" value="${esc(S.form.confirmaBorrar)}">
+    <div class="row" style="margin-top:20px;justify-content:flex-end"><button class="btn ghost sm" data-a="cerrarModal" ${m.busy?'disabled':''}>Cancelar</button><button class="btn sm" style="background:#B4443A" data-a="borrarHijo" ${m.busy?'disabled':''}>${m.busy?'Eliminando…':'Eliminar para siempre'}</button></div>`;
   else if (m.tipo === 'reactivar') h = `<h2>Reactivar acceso</h2>
     <p class="small">Los adultos de <b>${esc(m.nombre)}</b> podrán volver a entrar con sus mismas cuentas y verán toda la información como antes.</p>
     <div class="row" style="margin-top:20px;justify-content:flex-end"><button class="btn ghost sm" data-a="cerrarModal">Cancelar</button><button class="btn sm teal" data-a="reactivarFamilia">Reactivar</button></div>`;
@@ -1338,6 +1391,60 @@ const A = {
       S.modal = null; S.form = {}; toast(`Acceso cerrado para ${f.nombre}`); render(true);
     } catch(e){ toast(errMsg(e), 4000); }
   },
+  async avisosOn(){
+    try { const r = await Notification.requestPermission(); if (r !== 'granted') { toast('No se activaron: el navegador no dio permiso.', 4000); render(true); return; } } catch(e){ return toast('Este navegador no permite avisos.'); }
+    ls.set('cultiva-avisos', true); render(true);
+    mostrarAviso('Avisos activados', {body:'Te avisaremos cuando una familia registre algo.', icon:'icons/icon-192.png', tag:'prueba'});
+  },
+  avisosOff(){ ls.set('cultiva-avisos', false); render(true); },
+  modalBorrarFam(){
+    const f = S.familias.find(x => x.id === S.pfid);
+    const n = (k, a, b) => `${k} ${k===1?a:b}`;
+    const resumen = [n(S.hijos.length,'niño/a','niños'), n(S.adultos.length,'adulto','adultos'), n(S.conductas.length,'registro','registros'), n(S.preguntas.length,'pregunta','preguntas'), n(S.reportes.length,'reporte','reportes')].join(', ');
+    S.form = {confirmaBorrar:''}; S.modal = {tipo:'borrarFam', nombre:f.nombre, resumen}; render(true);
+  },
+  modalBorrarHijo(hid){
+    const h = hijo(hid), n = (k, a, b) => `${k} ${k===1?a:b}`;
+    const resumen = [n(S.conductas.filter(c => c.hijoId === hid).length,'registro','registros'), n(S.reportes.filter(r => r.hijoId === hid).length,'reporte','reportes'), n(S.preguntas.filter(p => p.hijoId === hid).length,'pregunta sobre él/ella','preguntas sobre él/ella')].join(', ');
+    S.form = {confirmaBorrar:''}; S.modal = {tipo:'borrarHijo', hid, nombre:h.nombre, resumen}; render(true);
+  },
+  async borrarHijo(){
+    if ((S.form.confirmaBorrar||'').trim().toUpperCase() !== 'ELIMINAR') return toast('Escribe ELIMINAR para confirmar');
+    const hid = S.modal.hid, F = 'familias/' + S.pfid;
+    S.modal.busy = true; render(true);
+    try {
+      const paths = [F+'/hijos/'+hid];
+      for (const col of ['conductas','reportes','preguntas']) (await api.query(F+'/'+col, 'hijoId', hid)).forEach(d => paths.push(`${F}/${col}/${d.id}`));
+      await borrarRutas(paths);
+      S.modal = null; S.form = {}; S.phijo = null; toast('Eliminado'); render(true);
+    } catch(e){ S.modal.busy = false; toast(errMsg(e), 4000); render(true); }
+  },
+  async borrarFamilia(){
+    if ((S.form.confirmaBorrar||'').trim().toUpperCase() !== 'ELIMINAR') return toast('Escribe ELIMINAR para confirmar');
+    const fid = S.pfid, F = 'familias/' + fid, nombre = S.modal.nombre;
+    S.modal.busy = true; render(true);
+    try {
+      // 1. Primero se corta el acceso: sin el vínculo, las reglas ya no dejan leer nada.
+      const miembros = await api.query('miembros', 'familiaId', fid);
+      const invs = await api.query('invitaciones', 'familiaId', fid);
+      await borrarRutas(miembros.map(m => 'miembros/' + m.id).concat(invs.map(i => 'invitaciones/' + i.id)));
+      // 2. Recursos compartidos con la familia: se quita de la lista; si era solo para ella, se borra.
+      const ops = [];
+      (await api.list('recursosAdmin')).filter(r => (r.para||[]).includes(fid)).forEach(r => {
+        const para = r.para.filter(x => x !== fid);
+        ops.push(para.length ? {op:'update', path:'recursosAdmin/'+r.id, data:{para}} : {op:'delete', path:'recursosAdmin/'+r.id});
+      });
+      if (ops.length) await api.batch(ops);
+      // 3. Todo el contenido de la familia y, al final, la familia.
+      const paths = [];
+      for (const col of ['adultos','hijos','conductas','preguntas','reportes','recursos']) (await api.list(F+'/'+col)).forEach(d => paths.push(`${F}/${col}/${d.id}`));
+      await borrarRutas(paths);
+      await api.del(F);
+      ls.del('cultiva-borrador-rep-' + fid);
+      unsubAll(psubs); S.pfid = null; S.fid = null; S.modal = null; S.form = {};
+      toast(`${nombre} fue eliminada`); render(true);
+    } catch(e){ console.error(e); S.modal.busy = false; toast(errMsg(e) + ' Vuelve a intentarlo: lo que alcanzó a borrarse no se recupera.', 6000); render(true); }
+  },
   async reactivarFamilia(){
     const f = S.familias.find(x => x.id === S.pfid), now = Date.now();
     try {
@@ -1413,6 +1520,11 @@ const A = {
   async borrarReporte(){ if (!confirm('¿Eliminar este reporte? La familia dejará de verlo.')) return; try { await api.del(`familias/${S.pfid}/reportes/${S.p.repId}`); } catch(e){ return toast(errMsg(e)); } S.form = {}; S.p = {}; S.ptab = 'reportes'; render(true); }
 };
 
+// Borra muchas rutas en tandas (Firestore acepta hasta 500 cambios por tanda).
+async function borrarRutas(paths){
+  for (let i = 0; i < paths.length; i += 400) await api.batch(paths.slice(i, i + 400).map(path => ({op:'delete', path})));
+}
+
 function saveDraft(){
   if (!S.user) return;
   if (S.role === 'padre' && S.view === 'registro-form' && !S.p.id) ls.set('cultiva-borrador-reg-' + S.user.uid, S.form);
@@ -1444,6 +1556,11 @@ window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferr
 function applyTheme(){ const t = ls.get('cultiva-tema','auto'); if (t === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t); }
 
 history.replaceState({v:'inicio'}, '');
+if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => {
+  const fid = e.data && e.data.abrirFam;
+  if (fid && S.role === 'admin' && S.familias.some(f => f.id === fid)) A.abrirFam(fid);
+});
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.role === 'admin') actualizarBadge(); });
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
   // Si llega una versión nueva mientras la app está abierta, se recarga sola una vez.
   const habiaSW = !!navigator.serviceWorker.controller; let recargado = false;

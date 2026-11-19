@@ -1,6 +1,6 @@
 // Service worker: guarda la app para usarla sin internet.
 // IMPORTANTE: subir VERSION en cada publicación para que los teléfonos se actualicen.
-const VERSION = 'cultiva-v7';
+const VERSION = 'cultiva-v8';
 const ARCHIVOS = [
   './',
   './index.html',
@@ -47,4 +47,15 @@ self.addEventListener('fetch', e => {
   }
   // Fuentes, íconos y librerías: guardados primero (no cambian).
   e.respondWith(caches.match(req, {ignoreSearch: true}).then(r => r || fetch(req)));
+});
+
+// Toque en un aviso: abre (o enfoca) la app en la familia correspondiente.
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const fid = e.notification.data && e.notification.data.fid;
+  e.waitUntil(self.clients.matchAll({type: 'window', includeUncontrolled: true}).then(cs => {
+    const c = cs[0];
+    if (c) { c.focus(); if (fid) c.postMessage({abrirFam: fid}); return; }
+    return self.clients.openWindow('./');
+  }));
 });

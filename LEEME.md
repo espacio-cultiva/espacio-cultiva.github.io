@@ -94,6 +94,18 @@ El bloqueo lo hacen cumplir las reglas de Firestore en el servidor, no la app. *
 
 Límite: si un teléfono no vuelve a conectarse nunca a internet, no recibe la orden de borrar su copia local. Apenas se conecta, se bloquea.
 
+## Eliminar
+
+- **Un niño/a:** Ficha → "Eliminar a …". Borra su ficha, sus registros, reportes y preguntas.
+- **Una familia completa:** Ficha → "Eliminar familia definitivamente". Primero corta el acceso, después borra todo lo de la familia y la saca de los recursos compartidos. Pide escribir ELIMINAR.
+- No se puede deshacer. Las cuentas de correo de los adultos quedan en Firebase Authentication sin acceso a nada; si se quieren borrar también, se hace a mano en la consola.
+
+## Avisos
+
+- En el panel: "Activar avisos en este equipo". Avisa cuando una familia registra una conducta, hace una pregunta, se une o agrega un hijo.
+- Funcionan mientras la app está abierta o en segundo plano (pestaña del computador, app instalada abierta en el celular). Con la app cerrada del todo no llegan: eso requiere notificaciones push con Cloud Functions, que piden el plan Blaze de Firebase.
+- El número de novedades aparece en el título de la pestaña y, donde el sistema lo permite, en el ícono de la app.
+
 ## Pendiente de revisar con María Valentina, antes de repartirla
 
 - Texto del consentimiento (función `consentHTML` en `index.html`). Hoy es un texto de ejemplo.
