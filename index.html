@@ -889,7 +889,7 @@ function pFamilia(){
     <p class="tiny" style="text-align:center;margin-top:14px">${esc(S.user.email)} · ${esc(CFG.centro)}</p>`;
 }
 function mensajeInvitacion(code, nombre, exp){
-  return `Hola! Les comparto la app de ${CFG.centro} para acompañar el proceso con ${CFG.psicologa}.\n\n1. Abran este link en el celular: ${APP_URL}\n2. Toquen "Tengo un código" y escriban: ${code}\n3. En iPhone ábranlo en Safari y agréguenlo a inicio (botón Compartir).\n\nEl código sirve para todos los adultos de la familia${exp?' hasta el '+new Date(exp).toLocaleDateString('es-CL',{day:'numeric',month:'long'}):''}.`;
+  return `Hola! Les comparto la app de ${CFG.centro} para acompañar el proceso con ${CFG.psicologa}.\n\n1. Abran este link en el celular: ${APP_URL}\n2. Toquen "Tengo un código" y escriban: ${code}\n3. Para dejarla como app en el teléfono:\n• iPhone: ábranlo en Safari, botón Compartir → "Agregar a inicio".\n• Android: ábranlo en Chrome, menú de los 3 puntos → "Instalar app" o "Agregar a pantalla principal".\n\nEl código sirve para todos los adultos de la familia${exp?' hasta el '+new Date(exp).toLocaleDateString('es-CL',{day:'numeric',month:'long'}):''}.`;
 }
 
 /* =========================================================
