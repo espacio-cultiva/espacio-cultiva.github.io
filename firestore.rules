@@ -92,8 +92,17 @@ service cloud.firestore {
         allow read: if isAdmin() || isMember(fid);
         allow create: if isMember(fid) && request.resource.data.autorUid == request.auth.uid;
         allow update: if (isMember(fid) && request.resource.data.autorUid == resource.data.autorUid)
-          || (isAdmin() && changed().hasOnly(['vistaPsico']));
+          || (isAdmin() && changed().hasOnly(['vistaPsico', 'nComentarios', 'ultimoComentario', 'ultimoTexto', 'ultimoRol']));
         allow delete: if isAdmin() || (isMember(fid) && resource.data.autorUid == request.auth.uid);
+
+        // Comentarios de la psicóloga y de la familia sobre el registro.
+        match /comentarios/{cid} {
+          allow read: if isAdmin() || isMember(fid);
+          allow create: if (isMember(fid) && request.resource.data.autorUid == request.auth.uid && request.resource.data.rol == 'familia')
+            || (isAdmin() && request.resource.data.rol == 'psico');
+          allow update: if false;
+          allow delete: if isAdmin();
+        }
       }
 
       // Preguntas para la sesión. Los apoderados editan el texto; la psicóloga responde.

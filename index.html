@@ -404,7 +404,8 @@ function demoSeed(){
     [F+'/hijos/h-tomas']: {nombre:'Tomás', apellidos:'González Rojas', fechaNac:'2018-05-14', curso:'3° básico', colegio:'Colegio Los Pinos', viveCon:'Mamá, papá y su hermana Emilia', hermanos:'Emilia (5)', motivo:'Le cuesta mucho perder en juegos y cuando hay que apagar la tablet. Tiene rabietas fuertes, a veces tira cosas.', salud:'', gustos:'Legos, dinosaurios, andar en bici. Lo calma que le hagan cariño en la espalda.', creado:d(30), orden:1},
     [F+'/hijos/h-emilia']: {nombre:'Emilia', apellidos:'González Rojas', fechaNac:'2021-02-03', curso:'Kínder', colegio:'Colegio Los Pinos', viveCon:'Mamá, papá y su hermano Tomás', hermanos:'Tomás (8)', motivo:'Miedo a dormir sola, se pasa a nuestra cama casi todas las noches.', salud:'Alergia a la penicilina', gustos:'Dibujar, cantar, los gatos.', creado:d(30), orden:2},
     [F+'/conductas/c1']: {hijoId:'h-tomas', tipo:'dificil', categorias:['Rabieta o pataleta','Pantallas'], intensidad:4, duracion:'15 a 30 min', lugar:'Casa', fecha:at(6,19,30), antes:'Le avisé que quedaban 5 minutos de tablet y después se la pedí.', descripcion:'Gritó, tiró un cojín y se encerró en su pieza llorando.', reaccion:'Le dije con calma que entendía que estaba enojado y lo dejé un rato. Después fui a verlo.', resultado:'Se calmó solo como a los 20 min y bajó a comer.', autorUid:'demo-carolina', autorNombre:'Carolina', creado:at(6,20,15)},
-    [F+'/conductas/c2']: {hijoId:'h-tomas', tipo:'positiva', categorias:['Se calmó solo/a'], fecha:at(4,18,0), descripcion:'Perdió jugando UNO con la Emilia y aunque se enojó, respiró y dijo "otra vez".', reaccion:'Lo felicitamos harto y le dimos un abrazo.', autorUid:'demo-rodrigo', autorNombre:'Rodrigo', creado:at(4,18,20)},
+    [F+'/conductas/c2']: {hijoId:'h-tomas', tipo:'positiva', categorias:['Se calmó solo/a'], fecha:at(4,18,0), descripcion:'Perdió jugando UNO con la Emilia y aunque se enojó, respiró y dijo "otra vez".', reaccion:'Lo felicitamos harto y le dimos un abrazo.', autorUid:'demo-rodrigo', autorNombre:'Rodrigo', creado:at(4,18,20), vistaPsico:d(3.5), nComentarios:1, ultimoComentario:d(3.5), ultimoTexto:'¡Qué bien! Felicítenlo de mi parte, es justo lo que trabajamos.', ultimoRol:'psico'},
+    [F+'/conductas/c2/comentarios/k1']: {texto:'¡Qué bien! Felicítenlo de mi parte, es justo lo que trabajamos.', rol:'psico', autorUid:'demo-admin', autorNombre:'María Valentina', creado:d(3.5)},
     [F+'/conductas/c3']: {hijoId:'h-emilia', tipo:'dificil', categorias:['Le cuesta dormir','Miedo o ansiedad'], intensidad:3, duracion:'Más de 30 min', lugar:'Casa', fecha:at(3,22,40), antes:'La acostamos a las 21:30, todo normal.', descripcion:'Se despertó llorando, dijo que había un monstruo en el clóset.', reaccion:'La llevé a nuestra cama.', resultado:'Durmió con nosotros.', autorUid:'demo-carolina', autorNombre:'Carolina', creado:at(2,7,30)},
     [F+'/conductas/c4']: {hijoId:'h-tomas', tipo:'dificil', categorias:['Colegio o tareas'], intensidad:2, fecha:at(1,17,0), descripcion:'No quería hacer la tarea de matemáticas, dijo que era tonto.', autorUid:'demo-carolina', autorNombre:'Carolina', creado:at(1,17,20)},
     [F+'/conductas/c5']: {hijoId:'h-tomas', tipo:'dificil', categorias:['Peleas con hermanos'], intensidad:3, duracion:'5 a 15 min', lugar:'Auto o traslado', fecha:at(12,8,0), antes:'Íbamos atrasados al colegio.', descripcion:'Le pegó a la Emilia en el auto porque ella le tocó la mochila.', reaccion:'Paré el auto y los separé.', resultado:'Llegó enojado al colegio.', autorUid:'demo-rodrigo', autorNombre:'Rodrigo', creado:at(12,9,0)},
@@ -702,9 +703,10 @@ function proximaSesion(hid){
 function viewParent(){
   if (['registro-form','registro','hijo-form','adulto-form','reporte','pregunta'].includes(S.view)) return parentSub();
   const nrec = recursosFam().filter(r => !recVistos().includes(r.id)).length;
+  const nreg = S.conductas.filter(regNuevo).length;
   const nr = noLeidos().length, pend = S.preguntas.filter(p => p.estado === 'pendiente').length;
   const tabs = [['inicio','Inicio','home'],['registros','Registros','lista'],['preguntas','Preguntas','preg'],['reportes','Reportes','rep'],['recursos','Recursos','libro']];
-  const nav = `<nav class="nav"><div class="nav-in">${tabs.map(([v,l,i]) => `<button class="${S.view===v?'on':''}" data-a="tab" data-v="${v}">${I(i)}${l}${v==='reportes'&&nr?`<span class="bdg">${nr}</span>`:''}${v==='preguntas'&&pend?`<span class="bdg" style="background:var(--pea-d)">${pend}</span>`:''}${v==='recursos'&&nrec?`<span class="bdg" style="background:var(--tea-d)">${nrec}</span>`:''}</button>`).join('')}</div></nav>`;
+  const nav = `<nav class="nav"><div class="nav-in">${tabs.map(([v,l,i]) => `<button class="${S.view===v?'on':''}" data-a="tab" data-v="${v}">${I(i)}${l}${v==='reportes'&&nr?`<span class="bdg">${nr}</span>`:''}${v==='registros'&&nreg?`<span class="bdg" style="background:var(--tea-d)">${nreg}</span>`:''}${v==='preguntas'&&pend?`<span class="bdg" style="background:var(--pea-d)">${pend}</span>`:''}${v==='recursos'&&nrec?`<span class="bdg" style="background:var(--tea-d)">${nrec}</span>`:''}</button>`).join('')}</div></nav>`;
   const body = ({inicio:pInicio, registros:pRegistros, preguntas:pPreguntas, reportes:pReportes, recursos:pRecursos, familia:pFamilia}[S.view] || pInicio)();
   const famBtn = `<button class="top-back" data-a="tab" data-v="familia" title="Familia y ajustes" style="flex-direction:column;gap:0;font-size:11px;padding:4px 0 4px 8px;color:${S.view==='familia'?'var(--sal-d)':'var(--ink2)'}">${I('fam')}Familia</button>`;
   return topBar(brand() + '<div class="sp"></div>' + offChip() + famBtn) + `<div class="wrap">${body}</div>` + nav;
@@ -735,7 +737,13 @@ function regCard(c){
     <div class="row wrapf" style="gap:6px"><b>${esc(h?.nombre||'')}</b><span class="tiny">${esc(cuando(c.fecha))}</span>${c._pend?'<span class="tiny">· enviando…</span>':''}</div>
     <div class="row wrapf" style="gap:6px;margin:6px 0">${(c.categorias||[]).map(k => `<span class="tag ${pos?'t':'s'}">${esc(k)}</span>`).join('')}${porCompletar(c)?'<span class="tag p">Por completar</span>':''}</div>
     ${c.descripcion?`<div class="small muted" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(c.descripcion)}</div>`:''}
+    ${comPreview(c, regNuevo(c))}
     </div>${!pos && c.intensidad ? lvl(c.intensidad) : ''}</div></div>`;
+}
+function comPreview(c, nuevo){
+  const vis = c.vistaPsico ? `<span class="tiny" style="color:var(--tea-d);font-weight:700">✓ Visto por ${esc(CFG.nombrePila)}</span>` : '';
+  if (!c.nComentarios) return vis ? `<div style="margin-top:6px">${vis}</div>` : '';
+  return `<div class="small" style="margin-top:8px;display:flex;gap:6px;align-items:flex-start">${nuevo?'<span class="tag t" style="flex:none">Nuevo</span>':''}<span class="muted">${I('preg').replace('class="i"','class="i" style="width:15px;height:15px;vertical-align:-3px"')} ${c.ultimoRol==='psico'?esc(CFG.nombrePila):'Familia'}: ${esc((c.ultimoTexto||'').slice(0,80))}${(c.ultimoTexto||'').length>80?'…':''}${c.nComentarios>1?` · ${c.nComentarios} comentarios`:''}</span></div>`;
 }
 const lvl = n => `<span class="lvl" title="Intensidad ${n} de 5">${[1,2,3,4,5].map(i => `<i class="${i<=n?'on':''}"></i>`).join('')}</span>`;
 
@@ -775,7 +783,7 @@ function regFormView(){
   html += inp('notas','Algo más',{area:1, opt:1});
   html += `<div style="margin-top:22px" class="stack"><button class="btn full" data-a="guardarRegistro">${edit?'Guardar cambios':'Guardar'}</button>
     ${!pos && !edit ? '<p class="tiny" style="text-align:center">Pueden guardar solo con lo básico y completar el resto después.</p>':''}
-    ${edit && S.conductas.find(c => c.id===S.p.id)?.autorUid === S.user.uid ? '<button class="btn ghost full danger" data-a="borrarRegistro">Eliminar registro</button>':''}</div>`;
+    ${edit && S.conductas.find(c => c.id===S.p.id)?.autorUid === S.user.uid && !S.conductas.find(c => c.id===S.p.id)?.nComentarios ? '<button class="btn ghost full danger" data-a="borrarRegistro">Eliminar registro</button>':''}</div>`;
   return html;
 }
 
@@ -796,7 +804,7 @@ function parentSub(){
   if (v === 'registro-form') return backBar(S.p.id ? 'Editar registro' : 'Nuevo registro') + `<div class="wrap">${regFormView()}</div>`;
   if (v === 'registro'){
     const c = S.conductas.find(x => x.id === S.p.id); if (!c) return backBar('Registro') + '<div class="wrap"><p class="empty">Este registro ya no existe.</p></div>';
-    return backBar('Registro') + `<div class="wrap">${regDetalle(c)}<div style="margin-top:18px"><button class="btn sec2 full" data-a="editarRegistro" data-v="${c.id}">${I('lapiz')} ${porCompletar(c)?'Completar':'Editar'}</button></div></div>`;
+    return backBar('Registro') + `<div class="wrap" style="padding-bottom:20px">${regDetalle(c)}<div style="margin-top:18px"><button class="btn sec2 full" data-a="editarRegistro" data-v="${c.id}">${I('lapiz')} ${porCompletar(c)?'Completar':'Editar'}</button></div>${regComentariosView(c, false)}</div>`;
   }
   if (v === 'hijo-form') return backBar(S.p.id ? 'Editar ficha' : 'Agregar hijo/a') + `<div class="wrap">${hijoForm()}<div style="margin-top:20px"><button class="btn full" data-a="guardarHijo">Guardar</button></div></div>`;
   if (v === 'adulto-form') return backBar('Mis datos') + `<div class="wrap">${adultoForm()}<div style="margin-top:20px"><button class="btn full" data-a="guardarAdulto">Guardar</button></div></div>`;
@@ -850,10 +858,29 @@ function pregCard(p, admin){
 }
 
 /* ---------- Conversación de una pregunta ---------- */
-function abrirHilo(fid, pid){
+function abrirHiloRuta(ruta, id){
   cerrarHilo();
-  S.hilo = {fid, pid, msgs:[], unsub: api.listen(`familias/${fid}/preguntas/${pid}/mensajes`, d => { if (S.hilo && S.hilo.pid === pid) { S.hilo.msgs = d.sort((a,b) => (a.creado||0)-(b.creado||0)); render(); setTimeout(bajarHilo, 30); } }, e => console.warn(e))};
+  S.hilo = {pid:id, msgs:[], unsub: api.listen(ruta, d => { if (S.hilo && S.hilo.pid === id) { S.hilo.msgs = d.sort((a,b) => (a.creado||0)-(b.creado||0)); render(); setTimeout(bajarHilo, 30); } }, e => console.warn(e))};
+}
+function abrirHilo(fid, pid){
+  abrirHiloRuta(`familias/${fid}/preguntas/${pid}/mensajes`, pid);
   if (S.role === 'padre'){ const v = pregVistas(); v[pid] = Date.now(); ls.set('cultiva-pregvistas', v); }
+}
+/* ---------- Comentarios en los registros ---------- */
+const regVistas = () => ls.get('cultiva-regvistas', {});
+const regNuevo = c => c.ultimoRol === 'psico' && (c.ultimoComentario||0) > (regVistas()[c.id]||0);
+const RESP_RAPIDAS = ['👍 Recibido, gracias','Gracias por contármelo','Lo conversamos en la sesión','¡Qué bien! Felicítenlo/a de mi parte'];
+function regComentariosView(c, admin){
+  const yo = r => admin ? r === 'psico' : r === 'familia';
+  const msgs = S.hilo && S.hilo.pid === c.id ? S.hilo.msgs : [];
+  const burb = m => `<div class="burb ${yo(m.rol)?'yo':'otro'}"><div class="q">${esc(m.rol === 'psico' ? CFG.nombrePila : (m.autorNombre || 'Familia'))}</div><div class="t">${esc(m.texto)}</div>${m.creado?`<div class="h">${esc(cuando(m.creado))}</div>`:''}</div>`;
+  return `<div class="sec" style="margin-top:22px"><h2>Comentarios</h2><div class="sp"></div>${c.vistaPsico?`<span class="tag t">✓ Visto por ${esc(CFG.nombrePila)}</span>`:''}</div>
+    <div class="hilo" style="margin-top:4px">${msgs.map(burb).join('') || `<p class="small muted" style="margin:0">${admin ? 'Deja un acuse de recibo o un comentario para la familia.' : 'Aún no hay comentarios. ' + esc(CFG.nombrePila) + ' puede dejar uno acá.'}</p>`}</div>
+    <div class="composer">
+      ${admin ? `<div class="chips" style="margin-bottom:8px">${RESP_RAPIDAS.map(q => `<button class="chip" data-a="comentarRapido" data-v="${c.id}" data-q="${esc(q)}">${esc(q)}</button>`).join('')}</div>` : ''}
+      <textarea class="in" data-f="hiloTexto" placeholder="${admin ? 'O escribe un comentario…' : 'Agregar un comentario…'}" style="min-height:60px">${esc(S.form.hiloTexto)}</textarea>
+      <div class="row" style="margin-top:8px"><div class="sp"></div><button class="btn sm${admin?' teal':''}" data-a="enviarComentario" data-v="${c.id}">Enviar</button></div>
+    </div>`;
 }
 function cerrarHilo(){ if (S.hilo && S.hilo.unsub) { try { S.hilo.unsub(); } catch(e){} } S.hilo = null; }
 function bajarHilo(){ const c = document.querySelector('.composer'); if (c && S.hilo && !isTyping()) c.scrollIntoView({block:'end'}); }
@@ -1038,11 +1065,12 @@ function panelFam(){
   const tabs = [['preparar','Antes de la sesión'],['registros','Registros'],['preguntas','Preguntas'+(pend?' ('+pend+')':'')],['reportes','Reportes'],['recursosF','Recursos'],['ficha','Ficha']];
   let body = '';
   if (S.ptab === 'reporte-form') body = adminReporteForm();
+  else if (S.ptab === 'registro') { const c = S.conductas.find(x => x.id === S.p.rid); body = `<div class="row" style="margin:10px 0 0"><button class="top-back" data-a="ptab" data-v="${S.p.vuelta||'registros'}">${I('back')} Volver</button></div>` + (c ? regDetalle(c) + regComentariosView(c, true) : '<p class="empty">Este registro ya no existe.</p>'); }
   else if (S.ptab === 'pregunta') body = `<div class="row" style="margin:10px 0 0"><button class="top-back" data-a="ptab" data-v="${S.p.vuelta||'preguntas'}">${I('back')} Volver</button></div>` + hiloView(S.preguntas.find(x => x.id === S.p.pid), true);
   else body = ({preparar:aPreparar, registros:aRegistros, preguntas:aPreguntas, reportes:aReportes, recursosF:aRecursos, ficha:aFicha}[S.ptab] || aPreparar)();
   const banner = fam.estado === 'bloqueada' ? `<div class="box s row" style="margin-top:14px"><div style="flex:1"><b>Acceso cerrado</b><div class="small">Desde el ${esc(fFechaL(fam.bloqueadaEn||Date.now()))}${fam.motivoBloqueo?' · '+esc(fam.motivoBloqueo):''}. La familia ya no puede entrar a la app; tú sigues viendo toda la información.</div></div><button class="btn sm sec2" data-a="modalReactivar">Reactivar</button></div>` : '';
   return `<div class="p-main">${banner}<div style="padding-top:14px"><h1>${esc(fam.nombre||'')}</h1><p class="small muted">${hijosOrd().map(h => esc(h.nombre)+(h.fechaNac?' ('+esc(edad(h.fechaNac))+')':'')).join(' · ') || 'Todavía sin datos de los niños'}</p></div>
-    ${!['reporte-form','pregunta'].includes(S.ptab)?`<div class="ptabs">${tabs.map(([v,l]) => `<button class="${S.ptab===v?'on':''}" data-a="ptab" data-v="${v}">${l}</button>`).join('')}</div>`:''}${body}</div>`;
+    ${!['reporte-form','pregunta','registro'].includes(S.ptab)?`<div class="ptabs">${tabs.map(([v,l]) => `<button class="${S.ptab===v?'on':''}" data-a="ptab" data-v="${v}">${l}</button>`).join('')}</div>`:''}${body}</div>`;
 }
 function hijoChips(allowAll){
   const hs = hijosOrd(); if (hs.length < 2 && !allowAll) return '';
@@ -1069,7 +1097,7 @@ function aPreparar(){
     <div class="sec"><h2>Preguntas para hoy</h2></div>
     ${preg.map(p => pregCard(p, true)).join('') || '<p class="muted small">No hay preguntas pendientes.</p>'}
     <div class="sec"><h2>Registros</h2></div>
-    ${cs.map(c => `<div class="card">${regDetalleCorto(c)}</div>`).join('') || '<p class="muted small">Sin registros en este período.</p>'}
+    ${cs.map(c => `<div class="card tap" data-a="verRegAdmin" data-v="${c.id}">${regDetalleCorto(c)}${regPieAdmin(c)}</div>`).join('') || '<p class="muted small">Sin registros en este período.</p>'}
     <div style="margin:20px 0"><button class="btn full" data-a="nuevoReporte" data-v="${hid}">${I('rep')} Escribir reporte de la sesión</button></div>`;
 }
 function regDetalleCorto(c){
@@ -1078,6 +1106,10 @@ function regDetalleCorto(c){
   return `<div class="row wrapf" style="gap:6px"><span class="tiny">${esc(cuando(c.fecha))} · ${esc(c.autorNombre||'')}</span><div class="sp"></div>${!pos&&c.intensidad?lvl(c.intensidad):''}</div>
     <div class="row wrapf" style="gap:6px;margin:6px 0">${(c.categorias||[]).map(k => `<span class="tag ${pos?'t':'s'}">${esc(k==='Otra'&&c.catOtra?c.catOtra:k)}</span>`).join('')}${[c.duracion,c.lugar].filter(Boolean).map(x => `<span class="tag">${esc(x)}</span>`).join('')}</div>
     ${pos ? ln('Qué pasó',c.descripcion)+ln('Qué ayudó',c.reaccion) : ln('Antes',c.antes)+ln('Hizo',c.descripcion)+ln('Reacción',c.reaccion)+ln('Terminó',c.resultado)}${ln('Notas',c.notas)}`;
+}
+function regPieAdmin(c){
+  const nuevoFam = c.ultimoRol === 'familia';
+  return `${c.nComentarios ? comPreview(c, nuevoFam) : ''}<div class="row" style="margin-top:8px">${!c.vistaPsico?'<span class="tag s">Sin ver</span>':''}<div class="sp"></div><span class="link" style="font-size:14px">${c.nComentarios?'Ver comentarios':'Comentar'} ›</span></div>`;
 }
 function barras(hid){
   const wk = 8, now = new Date(); now.setHours(23,59,59,999);
@@ -1093,7 +1125,7 @@ function barras(hid){
 function aRegistros(){
   if (!S.phijo || (S.phijo!=='todos' && !hijo(S.phijo))) S.phijo = 'todos';
   const list = S.conductas.filter(c => S.phijo === 'todos' || c.hijoId === S.phijo);
-  return `${hijoChips(true)}${list.map(c => `<div class="card"><div class="row" style="margin-bottom:4px">${av(hijo(c.hijoId),1)}<b>${esc(hijo(c.hijoId)?.nombre||'')}</b></div>${regDetalleCorto(c)}</div>`).join('') || '<p class="muted">Sin registros.</p>'}`;
+  return `${hijoChips(true)}${list.map(c => `<div class="card tap" data-a="verRegAdmin" data-v="${c.id}"><div class="row" style="margin-bottom:4px">${av(hijo(c.hijoId),1)}<b>${esc(hijo(c.hijoId)?.nombre||'')}</b></div>${regDetalleCorto(c)}${regPieAdmin(c)}</div>`).join('') || '<p class="muted">Sin registros.</p>'}`;
 }
 function aPreguntas(){
   const pend = S.preguntas.filter(p => p.estado === 'pendiente'), resp = S.preguntas.filter(p => p.estado !== 'pendiente');
@@ -1221,8 +1253,8 @@ function viewModal(){
 function go(view, p){ S.view = view; S.p = p || {}; history.pushState({v:view, p:S.p}, ''); render(true); window.scrollTo(0,0); }
 window.addEventListener('popstate', e => {
   if (S.modal){ S.modal = null; render(true); return; }
-  if (S.role === 'admin'){ if (S.ptab === 'pregunta') { cerrarHilo(); S.ptab = S.p.vuelta || 'preguntas'; S.p = {}; render(true); } else if (S.ptab === 'reporte-form') { S.ptab = 'reportes'; render(true); } else if ((S.pfid || S.pview) && innerWidth < 900) { A.cerrarFam(); } return; }
-  const st = e.state || {v:'inicio'}; S.view = st.v || 'inicio'; S.p = st.p || {}; if (S.view !== 'pregunta') cerrarHilo(); render(true);
+  if (S.role === 'admin'){ if (S.ptab === 'pregunta' || S.ptab === 'registro') { cerrarHilo(); S.ptab = S.p.vuelta || (S.ptab === 'pregunta' ? 'preguntas' : 'registros'); S.p = {}; render(true); } else if (S.ptab === 'reporte-form') { S.ptab = 'reportes'; render(true); } else if ((S.pfid || S.pview) && innerWidth < 900) { A.cerrarFam(); } return; }
+  const st = e.state || {v:'inicio'}; S.view = st.v || 'inicio'; S.p = st.p || {}; if (S.view !== 'pregunta' && S.view !== 'registro') cerrarHilo(); render(true);
 });
 async function copiar(txt){ try { await navigator.clipboard.writeText(txt); toast('Copiado'); } catch(e){ prompt('Copia este texto:', txt); } }
 
@@ -1330,7 +1362,26 @@ const A = {
     else { ls.del('cultiva-borrador-reg-' + S.user.uid); S.form = {tipo, hijoId: (hs.length === 1 ? hs[0].id : (hijo(S.filtroHijo) ? S.filtroHijo : '')), categorias:[], fechaTxt: toLocal(Date.now())}; }
     go('registro-form', {});
   },
-  verRegistro(id){ go('registro', {id}); },
+  verRegistro(id){ S.form.hiloTexto = ''; abrirHiloRuta(`familias/${S.fid}/conductas/${id}/comentarios`, id); const v = regVistas(); v[id] = Date.now(); ls.set('cultiva-regvistas', v); go('registro', {id}); },
+  verRegAdmin(id){
+    S.form.hiloTexto = ''; abrirHiloRuta(`familias/${S.pfid}/conductas/${id}/comentarios`, id);
+    const c = S.conductas.find(x => x.id === id);
+    if (c && !c.vistaPsico) w(api.update(`familias/${S.pfid}/conductas/${id}`, {vistaPsico: Date.now()}));
+    S.p = {rid:id, vuelta:S.ptab}; S.ptab = 'registro'; history.pushState({p:'reg'}, ''); render(true); window.scrollTo(0,0);
+  },
+  comentarRapido(id, t){ S.form.hiloTexto = t.dataset.q; A.enviarComentario(id); },
+  enviarComentario(id){
+    const t = (S.form.hiloTexto||'').trim(); if (!t) return toast('Escribe un comentario');
+    const admin = S.role === 'admin', fid = admin ? S.pfid : S.fid, C = `familias/${fid}/conductas/${id}`;
+    const c = S.conductas.find(x => x.id === id); if (!c) return;
+    const now = Date.now(), rol = admin ? 'psico' : 'familia';
+    S.form.hiloTexto = ''; render(true);
+    w(api.set(`${C}/comentarios/${api.newId()}`, {texto:t, rol, creado:now, autorUid:S.user.uid, autorNombre: admin ? CFG.nombrePila : primerNombre(miNombre())}));
+    const upd = {nComentarios:(c.nComentarios||0)+1, ultimoComentario:now, ultimoTexto:t.slice(0,140), ultimoRol:rol};
+    if (admin && !c.vistaPsico) upd.vistaPsico = now;
+    w(api.update(C, upd), S.online ? 'Enviado' : 'Guardado. Se enviará cuando haya señal.');
+    if (!admin){ marcarActividad(`${primerNombre(miNombre())} comentó un registro de ${hijo(c.hijoId)?.nombre||''}`); const v = regVistas(); v[id] = now; ls.set('cultiva-regvistas', v); }
+  },
   editarRegistro(id){ const c = S.conductas.find(x => x.id === id); S.form = Object.assign({}, c, {categorias:(c.categorias||[]).slice(), fechaTxt: toLocal(c.fecha)}); go('registro-form', {id}); },
   regTipo(v){ if (S.form.tipo !== v) { S.form.tipo = v; S.form.categorias = []; } render(true); },
   intens(v){ v = +v; S.form.intensidad = S.form.intensidad === v ? null : v; saveDraft(); render(true); },
@@ -1468,7 +1519,8 @@ const A = {
     try {
       const paths = [F+'/hijos/'+hid];
       for (const col of ['conductas','reportes','preguntas']) for (const d of await api.query(F+'/'+col, 'hijoId', hid)) {
-        if (col === 'preguntas') (await api.list(`${F}/preguntas/${d.id}/mensajes`)).forEach(m => paths.push(`${F}/preguntas/${d.id}/mensajes/${m.id}`));
+        const sub = {preguntas:'mensajes', conductas:'comentarios'}[col];
+        if (sub) (await api.list(`${F}/${col}/${d.id}/${sub}`)).forEach(m => paths.push(`${F}/${col}/${d.id}/${sub}/${m.id}`));
         paths.push(`${F}/${col}/${d.id}`);
       }
       await borrarRutas(paths);
@@ -1494,7 +1546,8 @@ const A = {
       // 3. Todo el contenido de la familia y, al final, la familia.
       const paths = [];
       for (const col of ['adultos','hijos','conductas','preguntas','reportes','recursos']) for (const d of await api.list(F+'/'+col)) {
-        if (col === 'preguntas') (await api.list(`${F}/preguntas/${d.id}/mensajes`)).forEach(m => paths.push(`${F}/preguntas/${d.id}/mensajes/${m.id}`));
+        const sub = {preguntas:'mensajes', conductas:'comentarios'}[col];
+        if (sub) (await api.list(`${F}/${col}/${d.id}/${sub}`)).forEach(m => paths.push(`${F}/${col}/${d.id}/${sub}/${m.id}`));
         paths.push(`${F}/${col}/${d.id}`);
       }
       await borrarRutas(paths);
@@ -1514,7 +1567,7 @@ const A = {
       S.modal = null; toast('Acceso reactivado. Si se suma otro adulto, genera un código nuevo.', 4000); render(true);
     } catch(e){ toast(errMsg(e), 4000); }
   },
-  ptab(v){ if (v !== 'pregunta') cerrarHilo(); S.ptab = v; S.p = {}; render(true); window.scrollTo(0,0); },
+  ptab(v){ if (v !== 'pregunta' && v !== 'registro') cerrarHilo(); S.ptab = v; S.p = {}; render(true); window.scrollTo(0,0); },
   phijo(v){ S.phijo = v; render(true); },
   modalNuevaFam(){ S.form = {}; S.modal = {tipo:'nuevaFam'}; render(true); setTimeout(() => { const i = document.querySelector('[data-f="nombreFamilia"]'); i && i.focus(); }, 50); },
   cerrarModal(){ S.modal = null; render(true); },
