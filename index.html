@@ -210,6 +210,16 @@ dl.ficha dd{margin:0;white-space:pre-wrap}
 }
 @media (max-width:899px){.p-hide-m{display:none!important}}
 .pre{white-space:pre-wrap}
+.hilo{display:flex;flex-direction:column;gap:10px;margin:14px 0 8px}
+.burb{max-width:86%;border-radius:18px;padding:10px 14px;line-height:1.45}
+.burb .q{font-size:12px;font-weight:800;margin-bottom:3px;opacity:.8}
+.burb .t{white-space:pre-wrap;word-wrap:break-word}
+.burb .h{font-size:11px;opacity:.7;margin-top:4px;text-align:right}
+.burb.yo{align-self:flex-end;background:var(--sal-l);color:var(--ink);border-bottom-right-radius:6px}
+.burb.otro{align-self:flex-start;background:var(--tea-l);color:var(--ink);border-bottom-left-radius:6px}
+.burb.sis{align-self:center;background:var(--line);color:var(--ink2);font-size:13px;border-radius:99px;padding:6px 14px}
+.composer{position:sticky;bottom:0;background:var(--bg);padding:10px 0 calc(env(safe-area-inset-bottom) + 10px);border-top:1px solid var(--line);margin-top:10px}
+.clamp4{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 </style>
 </head>
 <body>
@@ -400,7 +410,9 @@ function demoSeed(){
     [F+'/conductas/c5']: {hijoId:'h-tomas', tipo:'dificil', categorias:['Peleas con hermanos'], intensidad:3, duracion:'5 a 15 min', lugar:'Auto o traslado', fecha:at(12,8,0), antes:'Íbamos atrasados al colegio.', descripcion:'Le pegó a la Emilia en el auto porque ella le tocó la mochila.', reaccion:'Paré el auto y los separé.', resultado:'Llegó enojado al colegio.', autorUid:'demo-rodrigo', autorNombre:'Rodrigo', creado:at(12,9,0)},
     [F+'/preguntas/p1']: {hijoId:'h-tomas', texto:'¿Está bien que le quitemos la tablet por toda la semana cuando hace una rabieta, o es mejor otra cosa?', importante:true, estado:'pendiente', autorUid:'demo-carolina', autorNombre:'Carolina', creado:at(0,9,10)},
     [F+'/preguntas/p2']: {hijoId:'h-emilia', texto:'¿La dejamos pasarse a nuestra cama o la devolvemos a la suya cada vez?', estado:'pendiente', autorUid:'demo-rodrigo', autorNombre:'Rodrigo', creado:at(3,23,0)},
-    [F+'/preguntas/p3']: {hijoId:'', texto:'¿Es bueno que el papá venga a alguna sesión cuando no está de turno?', estado:'respondida', respuesta:'¡Sí, me encantaría! Coordinemos para la semana que esté en casa.', respondida:d(9), autorUid:'demo-rodrigo', autorNombre:'Rodrigo', creado:d(11)},
+    [F+'/preguntas/p3']: {hijoId:'', texto:'¿Es bueno que el papá venga a alguna sesión cuando no está de turno?', estado:'respondida', respuesta:'¡Sí, me encantaría! Coordinemos para la semana que esté en casa.', respondida:d(9), autorUid:'demo-rodrigo', autorNombre:'Rodrigo', creado:d(11), nMensajes:2, ultimoMensaje:d(8), ultimoTexto:'Perfecto, el jueves 28 a las 17:00 te dejo el horario reservado.', ultimoRol:'psico'},
+    [F+'/preguntas/p3/mensajes/m1']: {texto:'Genial, estoy en casa desde el 25. ¿Puede ser el jueves 28?', rol:'familia', autorUid:'demo-rodrigo', autorNombre:'Rodrigo', creado:d(8.5)},
+    [F+'/preguntas/p3/mensajes/m2']: {texto:'Perfecto, el jueves 28 a las 17:00 te dejo el horario reservado.', rol:'psico', autorUid:'demo-admin', autorNombre:'María Valentina', creado:d(8)},
     'recursos/rec1': {titulo:'Cómo acompañar una rabieta', descripcion:'Guía corta con ideas para el momento de la rabieta y para después.', url:'https://www.unicef.org/parenting/es', categoria:'Rabietas y límites', creado:d(20)},
     'recursos/rec2': {titulo:'Rutina para dormir', descripcion:'Pasos simples para armar una rutina de sueño con los niños.', url:'https://www.example.com/rutina-sueno', categoria:'Sueño', creado:d(8)},
     'recursos/rec3': {titulo:'Video: el volcán de las emociones', descripcion:'Para ver juntos y conversar después.', url:'https://www.youtube.com/', categoria:'Emociones', creado:d(1)},
@@ -420,7 +432,7 @@ const S = {
   view:'inicio', p:{}, form:{}, modal:null, ob:1,
   fid:null, fam:null, adultos:[], hijos:[], conductas:[], preguntas:[], reportes:[], got:{},
   filtroHijo:'todos', pregTab:'pendientes',
-  familias:[], verArch:false, pfid:null, pview:null, recG:[], recF:[], recM:[], recCat:'todos', recNuevos:[], ptab:'preparar', phijo:null, buscar:'',
+  hilo:null, familias:[], verArch:false, pfid:null, pview:null, recG:[], recF:[], recM:[], recCat:'todos', recNuevos:[], ptab:'preparar', phijo:null, buscar:'',
   online:navigator.onLine
 };
 let subs = [], psubs = [], pendingRender = false, deferredPrompt = null;
@@ -688,7 +700,7 @@ function proximaSesion(hid){
    App de la familia
    ========================================================= */
 function viewParent(){
-  if (['registro-form','registro','hijo-form','adulto-form','reporte'].includes(S.view)) return parentSub();
+  if (['registro-form','registro','hijo-form','adulto-form','reporte','pregunta'].includes(S.view)) return parentSub();
   const nrec = recursosFam().filter(r => !recVistos().includes(r.id)).length;
   const nr = noLeidos().length, pend = S.preguntas.filter(p => p.estado === 'pendiente').length;
   const tabs = [['inicio','Inicio','home'],['registros','Registros','lista'],['preguntas','Preguntas','preg'],['reportes','Reportes','rep'],['recursos','Recursos','libro']];
@@ -788,6 +800,10 @@ function parentSub(){
   }
   if (v === 'hijo-form') return backBar(S.p.id ? 'Editar ficha' : 'Agregar hijo/a') + `<div class="wrap">${hijoForm()}<div style="margin-top:20px"><button class="btn full" data-a="guardarHijo">Guardar</button></div></div>`;
   if (v === 'adulto-form') return backBar('Mis datos') + `<div class="wrap">${adultoForm()}<div style="margin-top:20px"><button class="btn full" data-a="guardarAdulto">Guardar</button></div></div>`;
+  if (v === 'pregunta'){
+    const p = S.preguntas.find(x => x.id === S.p.id);
+    return backBar('Pregunta') + `<div class="wrap" style="padding-bottom:20px">${hiloView(p, false)}</div>`;
+  }
   if (v === 'reporte'){
     const r = S.reportes.find(x => x.id === S.p.id); if (!r) return backBar('Reporte') + '<div class="wrap"><p class="empty">No encontramos este reporte.</p></div>';
     return backBar('Reporte de sesión') + `<div class="wrap">${reporteDetalle(r)}</div>`;
@@ -810,15 +826,54 @@ function pPreguntas(){
     <div class="tabs2" style="margin-top:8px"><button class="${t==='pendientes'?'on':''}" data-a="pregTab" data-v="pendientes">Para la sesión (${pend.length})</button><button class="${t==='respondidas'?'on':''}" data-a="pregTab" data-v="respondidas">Respondidas (${resp.length})</button></div>
     <div style="margin-top:12px">${(t==='pendientes'?pend:resp).map(pregCard).join('') || `<div class="empty">${RAINBOW}<p>${t==='pendientes'?'No hay preguntas pendientes.':'Aún no hay preguntas respondidas.'}</p></div>`}</div>`;
 }
+const pregVistas = () => ls.get('cultiva-pregvistas', {});
+// Última vez que la psicóloga escribió en esta pregunta (para marcar respuestas nuevas a la familia).
+const ultPsico = p => Math.max(p.respuesta ? (p.respondida || 0) : 0, p.ultimoRol === 'psico' ? (p.ultimoMensaje || 0) : 0);
 function pregCard(p, admin){
   const h = hijo(p.hijoId);
-  return `<div class="card">${p.importante?'<span class="tag s" style="float:right">Importante</span>':''}
+  const nueva = !admin && ultPsico(p) > (pregVistas()[p.id] || 0);
+  const nm = p.nMensajes || 0;
+  const ult = nm && p.ultimoTexto ? `<div class="small muted" style="margin-top:8px">${I('preg').replace('class="i"','class="i" style="width:15px;height:15px;vertical-align:-3px"')} ${nm} ${nm===1?'mensaje más':'mensajes más'} · ${p.ultimoRol==='psico'?esc(CFG.nombrePila):'familia'}: ${esc(p.ultimoTexto.slice(0,80))}${p.ultimoTexto.length>80?'…':''}</div>` : '';
+  const puedeEditar = !admin && p.estado==='pendiente' && p.autorUid===S.user.uid && !nm && !p.respuesta;
+  return `<div class="card tap" data-a="verPreg" data-v="${p.id}">${p.importante?'<span class="tag s" style="float:right">Importante</span>':''}${nueva?'<span class="tag t" style="float:right;margin-right:6px">Respuesta nueva</span>':''}
     <div class="tiny">${esc(p.autorNombre||'')} · ${esc(cuando(p.creado))}${h?' · sobre '+esc(h.nombre):''}${p._pend?' · enviando…':''}</div>
-    <div class="pre" style="margin-top:6px;font-weight:600">${esc(p.texto)}</div>
-    ${p.estado==='respondida' && p.respuesta ? `<div class="box t" style="margin-bottom:0"><div class="tiny" style="color:var(--tea-d);font-weight:800">${esc(CFG.nombrePila)} respondió</div><div class="pre small" style="margin-top:4px">${esc(p.respuesta)}</div></div>`:''}
+    <div class="pre clamp4" style="margin-top:6px;font-weight:600">${esc(p.texto)}</div>
+    ${p.respuesta ? `<div class="box t" style="margin-bottom:0"><div class="tiny" style="color:var(--tea-d);font-weight:800">${esc(CFG.nombrePila)} respondió</div><div class="pre small clamp4" style="margin-top:4px">${esc(p.respuesta)}</div></div>`:''}
     ${p.estado==='vista' ? `<div class="box t small" style="margin-bottom:0">Conversada en sesión${p.respondida?' · '+esc(fCorta(p.respondida)):''}</div>`:''}
-    ${admin ? adminPregActions(p) : (p.estado==='pendiente' && p.autorUid===S.user.uid ? `<div class="row" style="margin-top:8px;gap:14px"><button class="link" data-a="editarPreg" data-v="${p.id}">Editar</button><button class="link danger" data-a="borrarPreg" data-v="${p.id}">Eliminar</button></div>`:'')}
+    ${ult}
+    <div class="row wrapf" style="margin-top:10px;gap:14px">
+      ${admin ? adminPregActions(p) : ''}
+      ${puedeEditar ? `<button class="link" data-a="editarPreg" data-v="${p.id}">Editar</button><button class="link danger" data-a="borrarPreg" data-v="${p.id}">Eliminar</button>` : ''}
+      <div class="sp"></div><span class="link" style="font-size:14px">${admin && p.estado==='pendiente' ? 'Responder' : (p.respuesta||nm ? 'Ver conversación' : 'Abrir')} ›</span>
+    </div>
   </div>`;
+}
+
+/* ---------- Conversación de una pregunta ---------- */
+function abrirHilo(fid, pid){
+  cerrarHilo();
+  S.hilo = {fid, pid, msgs:[], unsub: api.listen(`familias/${fid}/preguntas/${pid}/mensajes`, d => { if (S.hilo && S.hilo.pid === pid) { S.hilo.msgs = d.sort((a,b) => (a.creado||0)-(b.creado||0)); render(); setTimeout(bajarHilo, 30); } }, e => console.warn(e))};
+  if (S.role === 'padre'){ const v = pregVistas(); v[pid] = Date.now(); ls.set('cultiva-pregvistas', v); }
+}
+function cerrarHilo(){ if (S.hilo && S.hilo.unsub) { try { S.hilo.unsub(); } catch(e){} } S.hilo = null; }
+function bajarHilo(){ const c = document.querySelector('.composer'); if (c && S.hilo && !isTyping()) c.scrollIntoView({block:'end'}); }
+function hiloView(p, admin){
+  if (!p) return '<p class="empty">Esta pregunta ya no existe.</p>';
+  const h = hijo(p.hijoId);
+  const yo = r => admin ? r === 'psico' : r === 'familia';
+  const burb = (rol, quien, texto, ms) => `<div class="burb ${yo(rol)?'yo':'otro'}"><div class="q">${esc(quien)}</div><div class="t">${esc(texto)}</div>${ms?`<div class="h">${esc(cuando(ms))}</div>`:''}</div>`;
+  const items = [burb('familia', p.autorNombre || 'Familia', p.texto, p.creado)];
+  if (p.respuesta) items.push(burb('psico', CFG.nombrePila, p.respuesta, p.respondida));
+  (S.hilo && S.hilo.pid === p.id ? S.hilo.msgs : []).forEach(m => items.push(burb(m.rol, m.rol === 'psico' ? CFG.nombrePila : (m.autorNombre || 'Familia'), m.texto, m.creado)));
+  if (p.estado === 'vista') items.push(`<div class="burb sis">Conversada en sesión${p.respondida?' · '+esc(fCorta(p.respondida)):''}</div>`);
+  const estado = p.estado === 'pendiente' ? '<span class="tag p">Para la sesión</span>' : p.estado === 'vista' ? '<span class="tag t">Conversada</span>' : '<span class="tag t">Respondida</span>';
+  return `<div style="padding-top:14px"><div class="row wrapf" style="gap:8px">${h?av(h,1)+`<b>${esc(h.nombre)}</b>`:'<b>Pregunta general</b>'}${p.importante?'<span class="tag s">Importante</span>':''}${estado}</div></div>
+    <div class="hilo">${items.join('')}</div>
+    <div class="composer">
+      <textarea class="in" data-f="hiloTexto" placeholder="${admin ? 'Escribe tu respuesta…' : 'Responder o agregar algo…'}" style="min-height:70px">${esc(S.form.hiloTexto)}</textarea>
+      <div class="row wrapf" style="margin-top:8px;gap:8px">${admin && p.estado==='pendiente' ? '<button class="btn sm ghost" data-a="vistaPreg" data-v="'+p.id+'">Conversada en sesión</button>' : ''}${admin && p.estado!=='pendiente' ? '<button class="btn sm ghost" data-a="reabrirPreg" data-v="'+p.id+'">Volver a pendiente</button>' : ''}<div class="sp"></div><button class="btn sm${admin?' teal':''}" data-a="enviarHilo" data-v="${p.id}">Enviar</button></div>
+      ${!admin ? `<div class="tiny" style="margin-top:6px">${esc(CFG.nombrePila)} lo verá en su panel. No es un canal de urgencias.</div>` : ''}
+    </div>`;
 }
 
 /* ---------- Reportes ---------- */
@@ -983,10 +1038,11 @@ function panelFam(){
   const tabs = [['preparar','Antes de la sesión'],['registros','Registros'],['preguntas','Preguntas'+(pend?' ('+pend+')':'')],['reportes','Reportes'],['recursosF','Recursos'],['ficha','Ficha']];
   let body = '';
   if (S.ptab === 'reporte-form') body = adminReporteForm();
+  else if (S.ptab === 'pregunta') body = `<div class="row" style="margin:10px 0 0"><button class="top-back" data-a="ptab" data-v="${S.p.vuelta||'preguntas'}">${I('back')} Volver</button></div>` + hiloView(S.preguntas.find(x => x.id === S.p.pid), true);
   else body = ({preparar:aPreparar, registros:aRegistros, preguntas:aPreguntas, reportes:aReportes, recursosF:aRecursos, ficha:aFicha}[S.ptab] || aPreparar)();
   const banner = fam.estado === 'bloqueada' ? `<div class="box s row" style="margin-top:14px"><div style="flex:1"><b>Acceso cerrado</b><div class="small">Desde el ${esc(fFechaL(fam.bloqueadaEn||Date.now()))}${fam.motivoBloqueo?' · '+esc(fam.motivoBloqueo):''}. La familia ya no puede entrar a la app; tú sigues viendo toda la información.</div></div><button class="btn sm sec2" data-a="modalReactivar">Reactivar</button></div>` : '';
   return `<div class="p-main">${banner}<div style="padding-top:14px"><h1>${esc(fam.nombre||'')}</h1><p class="small muted">${hijosOrd().map(h => esc(h.nombre)+(h.fechaNac?' ('+esc(edad(h.fechaNac))+')':'')).join(' · ') || 'Todavía sin datos de los niños'}</p></div>
-    ${S.ptab!=='reporte-form'?`<div class="ptabs">${tabs.map(([v,l]) => `<button class="${S.ptab===v?'on':''}" data-a="ptab" data-v="${v}">${l}</button>`).join('')}</div>`:''}${body}</div>`;
+    ${!['reporte-form','pregunta'].includes(S.ptab)?`<div class="ptabs">${tabs.map(([v,l]) => `<button class="${S.ptab===v?'on':''}" data-a="ptab" data-v="${v}">${l}</button>`).join('')}</div>`:''}${body}</div>`;
 }
 function hijoChips(allowAll){
   const hs = hijosOrd(); if (hs.length < 2 && !allowAll) return '';
@@ -1045,10 +1101,7 @@ function aPreguntas(){
     <h3 style="margin-top:20px">Respondidas</h3>${resp.map(p => pregCard(p,true)).join('') || '<p class="muted small">Ninguna todavía.</p>'}`;
 }
 function adminPregActions(p){
-  if (p.estado !== 'pendiente') return `<div class="row" style="margin-top:8px"><button class="link" data-a="reabrirPreg" data-v="${p.id}">Volver a pendiente</button></div>`;
-  const k = 'resp_' + p.id;
-  return `<textarea class="in" data-f="${k}" placeholder="Responder por escrito (opcional)…" style="margin-top:10px;min-height:60px">${esc(S.form[k])}</textarea>
-    <div class="row wrapf" style="margin-top:8px;gap:8px"><button class="btn sm teal" data-a="responderPreg" data-v="${p.id}">Enviar respuesta</button><button class="btn sm ghost" data-a="vistaPreg" data-v="${p.id}">Conversada en sesión</button></div>`;
+  return p.estado === 'pendiente' ? `<button class="link" data-a="vistaPreg" data-v="${p.id}">Conversada en sesión</button>` : '';
 }
 function aReportes(){
   if (!S.phijo || (S.phijo!=='todos' && !hijo(S.phijo))) S.phijo = 'todos';
@@ -1168,8 +1221,8 @@ function viewModal(){
 function go(view, p){ S.view = view; S.p = p || {}; history.pushState({v:view, p:S.p}, ''); render(true); window.scrollTo(0,0); }
 window.addEventListener('popstate', e => {
   if (S.modal){ S.modal = null; render(true); return; }
-  if (S.role === 'admin'){ if (S.ptab === 'reporte-form') { S.ptab = 'reportes'; render(true); } else if ((S.pfid || S.pview) && innerWidth < 900) { A.cerrarFam(); } return; }
-  const st = e.state || {v:'inicio'}; S.view = st.v || 'inicio'; S.p = st.p || {}; render(true);
+  if (S.role === 'admin'){ if (S.ptab === 'pregunta') { cerrarHilo(); S.ptab = S.p.vuelta || 'preguntas'; S.p = {}; render(true); } else if (S.ptab === 'reporte-form') { S.ptab = 'reportes'; render(true); } else if ((S.pfid || S.pview) && innerWidth < 900) { A.cerrarFam(); } return; }
+  const st = e.state || {v:'inicio'}; S.view = st.v || 'inicio'; S.p = st.p || {}; if (S.view !== 'pregunta') cerrarHilo(); render(true);
 });
 async function copiar(txt){ try { await navigator.clipboard.writeText(txt); toast('Copiado'); } catch(e){ prompt('Copia este texto:', txt); } }
 
@@ -1262,7 +1315,7 @@ const A = {
   terminarOb(){ S.ob = 1; S.view = 'inicio'; render(true); },
 
   /* navegación familia */
-  tab(v){ if (v === 'recursos'){ const vis = recVistos(), ids = recursosFam().map(r => r.id); S.recNuevos = ids.filter(id => !vis.includes(id)); ls.set('cultiva-recvistos', Array.from(new Set(vis.concat(ids)))); }
+  tab(v){ cerrarHilo(); if (v === 'recursos'){ const vis = recVistos(), ids = recursosFam().map(r => r.id); S.recNuevos = ids.filter(id => !vis.includes(id)); ls.set('cultiva-recvistos', Array.from(new Set(vis.concat(ids)))); }
     S.view = v; S.p = {}; if (v !== 'registros' && v !== 'reportes') S.filtroHijo = 'todos'; history.replaceState({v}, ''); render(true); window.scrollTo(0,0); },
   back(){ history.back(); },
   filtro(v){ S.filtroHijo = v; render(true); },
@@ -1334,7 +1387,7 @@ const A = {
 
   /* panel */
   abrirFam(id){ openFam(id); history.pushState({p:'fam'}, ''); render(true); window.scrollTo(0,0); },
-  cerrarFam(){ unsubAll(psubs); S.pfid = null; S.fid = null; S.pview = null; render(true); },
+  cerrarFam(){ cerrarHilo(); unsubAll(psubs); S.pfid = null; S.fid = null; S.pview = null; render(true); },
   abrirBiblio(){ unsubAll(psubs); S.pfid = null; S.fid = null; S.pview = 'recursos'; history.pushState({p:'bib'}, ''); render(true); window.scrollTo(0,0); },
   recCat(v){ S.recCat = v; render(true); },
   nuevoRecurso(fid){ S.form = {para: fid ? [fid] : ['todas'], categoria:''}; S.modal = {tipo:'recurso'}; render(true); },
@@ -1414,7 +1467,10 @@ const A = {
     S.modal.busy = true; render(true);
     try {
       const paths = [F+'/hijos/'+hid];
-      for (const col of ['conductas','reportes','preguntas']) (await api.query(F+'/'+col, 'hijoId', hid)).forEach(d => paths.push(`${F}/${col}/${d.id}`));
+      for (const col of ['conductas','reportes','preguntas']) for (const d of await api.query(F+'/'+col, 'hijoId', hid)) {
+        if (col === 'preguntas') (await api.list(`${F}/preguntas/${d.id}/mensajes`)).forEach(m => paths.push(`${F}/preguntas/${d.id}/mensajes/${m.id}`));
+        paths.push(`${F}/${col}/${d.id}`);
+      }
       await borrarRutas(paths);
       S.modal = null; S.form = {}; S.phijo = null; toast('Eliminado'); render(true);
     } catch(e){ S.modal.busy = false; toast(errMsg(e), 4000); render(true); }
@@ -1437,7 +1493,10 @@ const A = {
       if (ops.length) await api.batch(ops);
       // 3. Todo el contenido de la familia y, al final, la familia.
       const paths = [];
-      for (const col of ['adultos','hijos','conductas','preguntas','reportes','recursos']) (await api.list(F+'/'+col)).forEach(d => paths.push(`${F}/${col}/${d.id}`));
+      for (const col of ['adultos','hijos','conductas','preguntas','reportes','recursos']) for (const d of await api.list(F+'/'+col)) {
+        if (col === 'preguntas') (await api.list(`${F}/preguntas/${d.id}/mensajes`)).forEach(m => paths.push(`${F}/preguntas/${d.id}/mensajes/${m.id}`));
+        paths.push(`${F}/${col}/${d.id}`);
+      }
       await borrarRutas(paths);
       await api.del(F);
       ls.del('cultiva-borrador-rep-' + fid);
@@ -1455,7 +1514,7 @@ const A = {
       S.modal = null; toast('Acceso reactivado. Si se suma otro adulto, genera un código nuevo.', 4000); render(true);
     } catch(e){ toast(errMsg(e), 4000); }
   },
-  ptab(v){ S.ptab = v; S.p = {}; render(true); window.scrollTo(0,0); },
+  ptab(v){ if (v !== 'pregunta') cerrarHilo(); S.ptab = v; S.p = {}; render(true); window.scrollTo(0,0); },
   phijo(v){ S.phijo = v; render(true); },
   modalNuevaFam(){ S.form = {}; S.modal = {tipo:'nuevaFam'}; render(true); setTimeout(() => { const i = document.querySelector('[data-f="nombreFamilia"]'); i && i.focus(); }, 50); },
   cerrarModal(){ S.modal = null; render(true); },
@@ -1484,6 +1543,29 @@ const A = {
     const f = S.familias.find(x => x.id === S.pfid);
     if (!confirm('Nadie más podrá unirse con este código. Las cuentas ya creadas siguen funcionando. ¿Desactivar?')) return;
     try { await api.batch([{op:'set', path:'invitaciones/'+f.codigo, data:{activa:false}, merge:true}, {op:'update', path:'familias/'+f.id, data:{codigoExpira:0}}]); toast('Código desactivado'); } catch(e){ toast(errMsg(e), 4000); }
+  },
+  verPreg(id){
+    S.form.hiloTexto = '';
+    if (S.role === 'admin'){ abrirHilo(S.pfid, id); S.p = {pid:id, vuelta:S.ptab}; S.ptab = 'pregunta'; history.pushState({p:'preg'}, ''); render(true); window.scrollTo(0,0); setTimeout(bajarHilo, 60); return; }
+    abrirHilo(S.fid, id); go('pregunta', {id}); setTimeout(bajarHilo, 60);
+  },
+  async enviarHilo(pid){
+    const t = (S.form.hiloTexto||'').trim(); if (!t) return toast('Escribe un mensaje');
+    const admin = S.role === 'admin', fid = admin ? S.pfid : S.fid, P = `familias/${fid}/preguntas/${pid}`;
+    const p = S.preguntas.find(x => x.id === pid); if (!p) return;
+    const now = Date.now();
+    S.form.hiloTexto = ''; render(true);
+    if (admin && !p.respuesta){
+      w(api.update(P, {estado:'respondida', respuesta:t, respondida:now}), 'Respuesta enviada');
+      return;
+    }
+    const rol = admin ? 'psico' : 'familia';
+    const m = {texto:t, rol, creado:now, autorUid:S.user.uid, autorNombre: admin ? CFG.nombrePila : primerNombre(miNombre())};
+    w(api.set(`${P}/mensajes/${api.newId()}`, m));
+    const upd = {nMensajes:(p.nMensajes||0)+1, ultimoMensaje:now, ultimoTexto:t.slice(0,140), ultimoRol:rol};
+    upd.estado = admin ? 'respondida' : 'pendiente';
+    w(api.update(P, upd), admin ? 'Enviado' : (S.online ? 'Enviado' : 'Guardado. Se enviará cuando haya señal.'));
+    if (!admin){ marcarActividad(`${primerNombre(miNombre())} escribió en una pregunta`); const v = pregVistas(); v[pid] = now; ls.set('cultiva-pregvistas', v); }
   },
   responderPreg(id){
     const t = (S.form['resp_'+id]||'').trim(); if (!t) return toast('Escribe la respuesta');

@@ -101,9 +101,21 @@ service cloud.firestore {
         allow read: if isAdmin() || isMember(fid);
         allow create: if isMember(fid) && request.resource.data.autorUid == request.auth.uid
           && request.resource.data.estado == 'pendiente';
+        // La familia puede editar su pregunta y, al responder en la conversación, dejarla otra vez pendiente.
         allow update: if isAdmin()
-          || (isMember(fid) && changed().hasOnly(['texto', 'hijoId', 'importante', 'editado']));
+          || (isMember(fid)
+              && changed().hasOnly(['texto', 'hijoId', 'importante', 'editado', 'estado', 'nMensajes', 'ultimoMensaje', 'ultimoTexto', 'ultimoRol'])
+              && (request.resource.data.estado == resource.data.estado || request.resource.data.estado == 'pendiente'));
         allow delete: if isAdmin() || (isMember(fid) && resource.data.autorUid == request.auth.uid);
+
+        // Conversación de la pregunta: mensajes de la familia y de la psicóloga.
+        match /mensajes/{mid} {
+          allow read: if isAdmin() || isMember(fid);
+          allow create: if (isMember(fid) && request.resource.data.autorUid == request.auth.uid && request.resource.data.rol == 'familia')
+            || (isAdmin() && request.resource.data.rol == 'psico');
+          allow update: if false;
+          allow delete: if isAdmin();
+        }
       }
 
       // Recursos solo para esta familia.
